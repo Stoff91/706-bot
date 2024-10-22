@@ -20,9 +20,13 @@ client.once('ready', () => {
   console.log(`✅ ${client.user.tag} is online.`);
   
   // Registering commands (if using guild-based commands)
-  const guild = client.guilds.cache.get('YOUR_GUILD_ID'); // Replace with your guild ID
+  const guild = client.guilds.cache.get('1297681436882505769'); // Replace with your guild ID
   if (guild) {
     const commands = [
+      { 
+        name: 'lastwar',
+        description: 'Get the last war YouTube link of our SVS.',
+      },
       {
         name: 'play',
         description: 'Play a song from YouTube',
@@ -97,6 +101,12 @@ client.on('interactionCreate', async (interaction) => {
 
     queue.destroy(); // Stop the music and clear the queue
     return interaction.reply('Stopped the music and left the voice channel!');
+  }
+
+    // /lastwar command
+  if (commandName === 'lastwar') {
+    const youtubeLink = 'https://www.youtube.com/watch?v=YOUR_VIDEO_ID'; // Replace with actual YouTube video ID
+    await interaction.reply(`Here is the last war video: ${youtubeLink}`);
   }
 });
 
