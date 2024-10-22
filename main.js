@@ -18,7 +18,7 @@ const player = new Player(client);
 
 client.once('ready', () => {
   console.log(`✅ ${client.user.tag} is online.`);
-  
+
   // Registering commands (if using guild-based commands)
   const guild = client.guilds.cache.get('1297681436882505769'); // Replace with your guild ID
   if (guild) {
@@ -65,45 +65,50 @@ client.on('interactionCreate', async (interaction) => {
       return interaction.reply('You need to be in a voice channel to play music!');
     }
 
-    // Try to connect to the voice channel and play the requested song
-    const queue = player.createQueue(interaction.guild, {
+    // Create a queue for the guild and connect to the voice channel
+    let queue = player.nodes.create(interaction.guild, {
       metadata: {
         channel: interaction.channel,
       },
     });
 
+    // Try to connect to the voice channel
     try {
       if (!queue.connection) await queue.connect(voiceChannel);
-    } catch {
-      queue.destroy();
+    } catch (error) {
+      queue.delete();
       return interaction.reply('Could not join your voice channel!');
     }
 
     await interaction.reply(`Searching for **${query}**...`);
 
-    const track = await player
-      .search(query, {
-        requestedBy: interaction.user,
-        searchEngine: 'youtube',
-      })
-      .then((x) => x.tracks[0]);
+    const searchResult = await player.search(query, {
+      requestedBy: interaction.user,
+      searchEngine: 'youtube',
+    });
 
-    if (!track) return interaction.followUp('No results found!');
+    if (!searchResult || !searchResult.tracks.length) {
+      return interaction.followUp('No results found!');
+    }
 
+    const track = searchResult.tracks[0];
     queue.addTrack(track);
-    if (!queue.playing) await queue.play();
+
+    // Play the track if not already playing
+    if (!queue.playing) await queue.node.play();
+    
     interaction.followUp(`Now playing: **${track.title}**`);
   }
 
   if (commandName === 'stop') {
-    const queue = player.getQueue(interaction.guildId);
+    const queue = player.nodes.get(interaction.guildId);
     if (!queue) return interaction.reply('There is no music playing currently!');
 
-    queue.destroy(); // Stop the music and clear the queue
+    queue.delete(); // Stop the music and clear the queue
     return interaction.reply('Stopped the music and left the voice channel!');
   }
 
-    // /lastwar command
+  // /lastwar command
   if (commandName === 'lastwar') {
     const youtubeLink = 'https://www.youtube.com/watch?v=YOUR_VIDEO_ID'; // Replace with actual YouTube video ID
     await interaction.reply(`Here is the last war video: ${youtubeLink}`);
