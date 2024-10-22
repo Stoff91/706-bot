@@ -91,7 +91,7 @@ client.on('interactionCreate', async (interaction) => {
 
     const searchResult = await player.search(query, {
       requestedBy: interaction.user,
-      searchEngine: 'soundcloud', // Switches search to SoundCloud
+      searchEngine: 'youtube',  // Ensure this is the correct engine
     });
 
     if (!searchResult || !searchResult.tracks.length) {
