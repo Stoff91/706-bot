@@ -1,6 +1,7 @@
 require('dotenv').config();
 const { Client, IntentsBitField, GatewayIntentBits } = require('discord.js');
 const { Player } = require('discord-player');
+const { useMasterPlayer, extractors } = require('@discord-player/extractor');  // Import extractors
 
 // Create a new client instance
 const client = new Client({
@@ -15,6 +16,12 @@ const client = new Client({
 
 // Create a new Player instance
 const player = new Player(client);
+
+// Register the extractors
+(async () => {
+  await player.extractors.loadDefault();
+  console.log('✅ Extractors loaded and registered.');
+})();
 
 client.once('ready', () => {
   console.log(`✅ ${client.user.tag} is online.`);
@@ -84,7 +91,7 @@ client.on('interactionCreate', async (interaction) => {
 
     const searchResult = await player.search(query, {
       requestedBy: interaction.user,
-      searchEngine: 'youtube',
+      searchEngine: 'youtube',  // Ensure this is the correct engine
     });
 
     if (!searchResult || !searchResult.tracks.length) {
