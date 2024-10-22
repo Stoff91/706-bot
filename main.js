@@ -48,8 +48,8 @@ client.on('messageCreate', (message) => {
     return;
   }
 
-  if (message.content === 'hello') {
-    message.reply('hello');
+  if (message.content.toLowerCase() === 'hello') {
+    message.reply('Hello');
   }
 });
 
