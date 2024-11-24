@@ -20,7 +20,7 @@ client.on('messageCreate', (message) => {
   }
 
   if (message.content === 'hello') {
-    message.reply('hello');
+    message.reply('Hello');
   }
 });
 
