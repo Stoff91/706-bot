@@ -15,7 +15,7 @@ client.once('ready', async () => {
   console.log(`✅ ${client.user.tag} is online.`);
 
   // Registering commands when the bot starts (you may want to move this to a separate command handler)
-  const guild = client.guilds.cache.get('1297681436882505769'); // Replace with your guild ID
+  const guild = client.guilds.cache.get('1310170318735802398'); // Replace with your guild ID
 
   if (guild) {
     const commands = [
