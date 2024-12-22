@@ -60,24 +60,43 @@ client.on('messageCreate', (message) => {
   }
   if (message.content.toLowerCase() === '!restart onboarding') {
     message.reply('Lets go!');
-    initiateProcess(message.author);
+    initiateProcess(initiateProcess(message.author.id));
   }
 });
 
 
 // Event handler for when a new member joins
 client.on('guildMemberAdd', async (member) => {
-    try {
-        await initiateProcess(member);
-    } catch (error) {
-        console.error("Error handling new member:", error);
-    }
+  try {
+    // Pass the userId to the initiateProcess function
+    await initiateProcess(member.user.id);
+  } catch (error) {
+    console.error("Error handling new member:", error);
+  }
 });
 
 
-async function initiateProcess(member) {
+async function initiateProcess(userId) {
     const dmChannel = await member.createDM();
     await dmChannel.send(WELCOME_MESSAGE);
+
+    try {
+    // Predefined guild object
+    const guild = client.guilds.cache.get('1310170318735802398'); // Your guild ID here
+
+    // Fetch the GuildMember using the user ID
+    const member = await guild.members.fetch(userId);
+
+    // Now you have the member object with full guild-specific data
+    console.log(member.roles.cache.map(role => role.name)); // Logs all roles of the member
+
+    // Continue with your logic using the member object
+    // For example, setting a nickname or roles
+    // member.setNickname('NewNickname');
+
+  } catch (error) {
+    console.error('Error fetching member:', error);
+  }
 
     try {
         const server = await askQuestion(dmChannel, "What SERVER are you on?");
