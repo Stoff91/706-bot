@@ -62,28 +62,28 @@ client.on('messageCreate', (message) => {
 
 
 
-// Event handler for when a new member joins
-client.on('guildMemberAdd', async (member) => {
-    try {
-        const dmChannel = await member.createDM();
-        await dmChannel.send(WELCOME_MESSAGE);
+// Function to initiate or restart the process
+async function initiateProcess(member) {
+    const dmChannel = await member.createDM();
+    await dmChannel.send(WELCOME_MESSAGE);
 
+    try {
         const server = await askQuestion(dmChannel, "What SERVER are you on?");
         const confirmServer = await askYesNo(dmChannel, `You entered SERVER: ${server}. Is this correct? (yes/no)`);
-        if (!confirmServer) return restartProcess(member);
+        if (!confirmServer) return initiateProcess(member);
 
         const alliance = await askQuestion(dmChannel, "What ALLIANCE are you in?");
         const confirmAlliance = await askYesNo(dmChannel, `You entered ALLIANCE: ${alliance}. Is this correct? (yes/no)`);
-        if (!confirmAlliance) return restartProcess(member);
+        if (!confirmAlliance) return initiateProcess(member);
 
         const ingameName = await askQuestion(dmChannel, "What is your INGAME NAME?");
         const confirmName = await askYesNo(dmChannel, `You entered NAME: ${ingameName}. Is this correct? (yes/no)`);
-        if (!confirmName) return restartProcess(member);
+        if (!confirmName) return initiateProcess(member);
 
         await dmChannel.send(`Confirming details:\nServer: ${server}\nAlliance: ${alliance}\nNickname: ${ingameName}`);
 
         const confirmAll = await askYesNo(dmChannel, "Are these details correct? (yes/no)");
-        if (!confirmAll) return restartProcess(member);
+        if (!confirmAll) return initiateProcess(member);
 
         // Set nickname and roles
         const guild = member.guild;
@@ -103,9 +103,11 @@ client.on('guildMemberAdd', async (member) => {
 
         await dmChannel.send("Your nickname and roles have been successfully updated!");
     } catch (error) {
-        console.error("Error handling new member:", error);
+        console.error("Error during process:", error);
+        await dmChannel.send("An error occurred. Restarting the process.");
+        return initiateProcess(member);
     }
-});
+}
 
 // Function to ask a question and wait for a response
 async function askQuestion(dmChannel, question) {
@@ -121,12 +123,6 @@ async function askYesNo(dmChannel, question) {
     return answer?.toLowerCase() === 'yes';
 }
 
-// Function to restart the process
-async function restartProcess(member) {
-    const dmChannel = await member.createDM();
-    await dmChannel.send("Process restarting. Please follow the instructions again.");
-    member.roles.set([]).catch(console.error); // Clear roles
-}
 
 
 
