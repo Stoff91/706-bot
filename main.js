@@ -64,21 +64,24 @@ async function initiateOnboarding(member, guild) {
 
     let server;
     if (serverInteraction.customId === "server_other") {
-      await dmChannel.send("Please enter the server name:");
-      const serverMessage = await dmChannel.awaitMessages({
-        filter: msg => msg.author.id === member.id,
-        max: 1,
-        time: 60000
-      });
-      server = serverMessage.first().content;
-      const auditChannel = guild.channels.cache.find(channel => channel.name === "Audit");
-      if (auditChannel) {
-        await auditChannel.send(`User ${member} selected other server: ${server}`);
-      }
-    } else {
-      server = serverInteraction.customId.substring(7);
+    await serverInteraction.deferUpdate(); // Acknowledge the interaction
+
+    await dmChannel.send("Please enter the server name:");
+    const serverMessage = await dmChannel.awaitMessages({
+      filter: msg => msg.author.id === member.id,
+      max: 1,
+      time: 60000
+    });
+    server = serverMessage.first().content;
+
+    const auditChannel = guild.channels.cache.find(channel => channel.name === "Audit");
+    if (auditChannel) {
+      await auditChannel.send(`User ${member} selected other server: ${server}`);
     }
-    await serverInteraction.update({ components: [] });
+  } else {
+    server = serverInteraction.customId.substring(7);
+    await serverInteraction.update({ components: [] }); // Remove buttons
+  }
 
     // Step 2: Ask for the alliance role
     const allianceRoles = getRolesWithPrefix(guild, "Tag: ");
@@ -105,21 +108,24 @@ async function initiateOnboarding(member, guild) {
 
     let alliance;
     if (allianceInteraction.customId === "alliance_other") {
-      await dmChannel.send("Please enter the alliance name:");
-      const allianceMessage = await dmChannel.awaitMessages({
-        filter: msg => msg.author.id === member.id,
-        max: 1,
-        time: 60000
-      });
-      alliance = allianceMessage.first().content;
-      const auditChannel = guild.channels.cache.find(channel => channel.name === "Audit");
-      if (auditChannel) {
-        await auditChannel.send(`User ${member} selected other alliance: ${alliance}`);
-      }
-    } else {
-      alliance = allianceInteraction.customId.substring(9);
+    await allianceInteraction.deferUpdate(); // Acknowledge the interaction
+
+    await dmChannel.send("Please enter the alliance name:");
+    const allianceMessage = await dmChannel.awaitMessages({
+      filter: msg => msg.author.id === member.id,
+      max: 1,
+      time: 60000
+    });
+    alliance = allianceMessage.first().content;
+
+    const auditChannel = guild.channels.cache.find(channel => channel.name === "Audit");
+    if (auditChannel) {
+      await auditChannel.send(`User ${member} selected other alliance: ${alliance}`);
     }
-    await allianceInteraction.update({ components: [] });
+  } else {
+    alliance = allianceInteraction.customId.substring(9);
+    await allianceInteraction.update({ components: [] }); // Remove buttons
+  }
 
     // Step 3: Ask for nickname
     await dmChannel.send("Please enter your in-game nickname:");
