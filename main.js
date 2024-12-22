@@ -284,6 +284,12 @@ async function initiateOnboarding(member, guild) {
   }
 }
 
+client.on('messageCreate', (message) => {
+  console.log(
+    `[DM Test] channelType=${message.channel.type}, content="${message.content}"`
+  );
+});
+
 client.on('guildMemberAdd', async member => {
   initiateOnboarding(member, member.guild);
 });
