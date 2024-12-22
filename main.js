@@ -83,25 +83,35 @@ async function initiateOnboarding(member, guild) {
 
     let server;
     if (serverInteraction.customId === "server_other") {
-    await serverInteraction.deferUpdate(); // Acknowledge the interaction
+      await serverInteraction.deferUpdate(); // Acknowledge the interaction immediately
 
-    await dmChannel.send("Please enter the server name:");
-    const serverMessage = await dmChannel.awaitMessages({
-      filter: msg => msg.author.id === member.id,
-      max: 1,
-      time: 60000
-    });
-    server = serverMessage.first().content;
+      try {
+        const serverPromptMessage = await dmChannel.send("Please enter the server name:");
+        const serverMessage = await dmChannel.awaitMessages({
+          filter: msg => msg.author.id === member.id,
+          max: 1,
+          time: 60000
+        });
 
-    await member.roles.add(unsetServer).catch(console.error);
-    const auditChannel = guild.channels.cache.find(channel => channel.name === "audit");
-    if (auditChannel) {
-      await auditChannel.send(`User ${member} selected other server: ${server}`);
+        server = serverMessage.first().content;
+        await member.roles.add(unsetServer).catch(console.error);
+
+        const auditChannel = guild.channels.cache.find(channel => channel.name === "audit");
+        if (auditChannel) {
+          await auditChannel.send(`User ${member} selected other server: ${server}`);
+        }
+
+        await serverPromptMessage.delete().catch(console.error); // Clean up
+        await serverMessage.first().delete().catch(console.error); // Clean up
+      } catch (error) {
+        console.error(`Error handling 'server_other': ${error.message}`);
+        await dmChannel.send("You did not provide a server name in time. Please restart the onboarding process.");
+        return;
+      }
+    } else {
+      server = serverInteraction.customId.substring(7);
+      await serverInteraction.update({ components: [] }); // Remove buttons
     }
-  } else {
-    server = serverInteraction.customId.substring(7);
-    await serverInteraction.update({ components: [] }); // Remove buttons
-  }
 
     // Step 2: Ask for the alliance role
     const allianceRoles = getRolesWithPrefix(guild, "Tag: ");
@@ -128,26 +138,35 @@ async function initiateOnboarding(member, guild) {
 
     let alliance;
     if (allianceInteraction.customId === "alliance_other") {
-    await allianceInteraction.deferUpdate(); // Acknowledge the interaction
+      await allianceInteraction.deferUpdate(); // Acknowledge the interaction
 
-    await dmChannel.send("Please enter the alliance name:");
-    const allianceMessage = await dmChannel.awaitMessages({
-      filter: msg => msg.author.id === member.id,
-      max: 1,
-      time: 60000
-    });
-    alliance = allianceMessage.first().content;
+      try {
+        const alliancePromptMessage = await dmChannel.send("Please enter the alliance name:");
+        const allianceMessage = await dmChannel.awaitMessages({
+          filter: msg => msg.author.id === member.id,
+          max: 1,
+          time: 60000
+        });
 
-    await member.roles.add(unsetAlliance).catch(console.error);
+        alliance = allianceMessage.first().content;
+        await member.roles.add(unsetAlliance).catch(console.error);
 
-    const auditChannel = guild.channels.cache.find(channel => channel.name === "audit");
-    if (auditChannel) {
-      await auditChannel.send(`User ${member} selected other alliance: ${alliance}`);
+        const auditChannel = guild.channels.cache.find(channel => channel.name === "audit");
+        if (auditChannel) {
+          await auditChannel.send(`User ${member} selected other alliance: ${alliance}`);
+        }
+
+        await alliancePromptMessage.delete().catch(console.error); // Clean up
+        await allianceMessage.first().delete().catch(console.error); // Clean up
+      } catch (error) {
+        console.error(`Error handling 'alliance_other': ${error.message}`);
+        await dmChannel.send("You did not provide an alliance name in time. Please restart the onboarding process.");
+        return;
+      }
+    } else {
+      alliance = allianceInteraction.customId.substring(9);
+      await allianceInteraction.update({ components: [] }); // Remove buttons
     }
-  } else {
-    alliance = allianceInteraction.customId.substring(9);
-    await allianceInteraction.update({ components: [] }); // Remove buttons
-  }
 
     // Step 3: Ask for nickname
     await dmChannel.send("Please enter your in-game nickname:");
@@ -182,45 +201,46 @@ async function initiateOnboarding(member, guild) {
     });
 
     if (confirmationInteraction.customId === "confirm_yes") {
-      // Check for duplicate
-      const duplicateRole = guild.roles.cache.find(role => role.name === "Duplicate");
-      const hasSrvOrTagRoles = member.roles.cache.some(role => role.name.startsWith("Srv: ") || role.name.startsWith("Tag: "));
-      if (hasSrvOrTagRoles) {
-        if (duplicateRole) {
-          await member.roles.add(duplicateRole);
+      await confirmationInteraction.update({ content: "Processing your choices...", components: [] }).catch(console.error);
+
+      try {
+        const duplicateRole = guild.roles.cache.find(role => role.name === "Duplicate");
+        const hasSrvOrTagRoles = member.roles.cache.some(role => role.name.startsWith("Srv: ") || role.name.startsWith("Tag: "));
+
+        if (hasSrvOrTagRoles) {
+          if (duplicateRole) {
+            await member.roles.add(duplicateRole);
+          }
+          const auditChannel = guild.channels.cache.find(channel => channel.name === "audit");
+          if (auditChannel) {
+            await auditChannel.send(`Duplicate detected for user ${member}`);
+          }
+          return;
         }
-        const auditChannel = guild.channels.cache.find(channel => channel.name === "audit");
-        if (auditChannel) {
-          await auditChannel.send(`Duplicate detected for user ${member}`);
+
+        server = server.replace("Srv: ", "");
+        alliance = alliance.replace("Tag: ", "");
+
+        const serverRole = guild.roles.cache.find(role => role.name === `Srv: ${server}`);
+        const allianceRole = guild.roles.cache.find(role => role.name === `Tag: ${alliance}`);
+        if (serverRole) await member.roles.add(serverRole);
+        if (allianceRole) {
+          await member.roles.add(allianceRole);
+          const formattedAlliance = allianceRole.name.substring(5); // Remove 'Tag: '
+          const newNickname = `[${formattedAlliance}] ${ingameName}`;
+          const existingMember = guild.members.cache.find(m => m.nickname === newNickname);
+          if (!existingMember) {
+            await member.setNickname(newNickname);
+          }
         }
-        return;
+
+        await dmChannel.send("Roles and nickname updated successfully!");
+      } catch (error) {
+        console.error(`Error updating roles and nickname: ${error.message}`);
+        await dmChannel.send("An error occurred while updating your roles or nickname. Please contact support.");
       }
-
-
-
-      server = server.replace("Srv: ", "");
-      alliance = alliance.replace("Tag: ", "");
-      // Assign roles
-      console.log(`Alliance role not found: Tag: ${alliance}`);
-      console.log(`Server role not found: Srv: ${server}`);
-
-
-      const serverRole = guild.roles.cache.find(role => role.name === `Srv: ${server}`);
-      const allianceRole = guild.roles.cache.find(role => role.name === `Tag: ${alliance}`);
-      if (serverRole) await member.roles.add(serverRole);
-      if (allianceRole) {
-        await member.roles.add(allianceRole);
-        const formattedAlliance = allianceRole.name.substring(5); // Remove 'Tag: '
-        const newNickname = `[${formattedAlliance}] ${ingameName}`;
-        const existingMember = guild.members.cache.find(m => m.nickname === newNickname);
-        if (!existingMember) {
-          await member.setNickname(newNickname);
-        }
-      }
-
-      await confirmationInteraction.update({ content: "Roles and nickname updated successfully!", components: [] });
     } else {
-      await confirmationInteraction.update({ content: "Process aborted. Please restart if needed.", components: [] });
+      await confirmationInteraction.update({ content: "Process aborted. Please restart if needed.", components: [] }).catch(console.error);
     }
   } catch (error) {
     console.error(`Error: ${error}`);
