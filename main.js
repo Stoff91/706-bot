@@ -169,6 +169,10 @@ async function initiateOnboarding(member, guild) {
       }
 
       // Assign roles
+      console.log(`Alliance role not found: Tag: ${alliance}`);
+      console.log(`Server role not found: Srv: ${server}`);
+
+
       const serverRole = guild.roles.cache.find(role => role.name === `Srv: ${server}`);
       const allianceRole = guild.roles.cache.find(role => role.name === `Tag: ${alliance}`);
       if (serverRole) await member.roles.add(serverRole);
