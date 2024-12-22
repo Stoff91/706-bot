@@ -172,11 +172,16 @@ async function initiateOnboarding(member, guild) {
       const serverRole = guild.roles.cache.find(role => role.name === `Srv: ${server}`);
       const allianceRole = guild.roles.cache.find(role => role.name === `Tag: ${alliance}`);
       if (serverRole) await member.roles.add(serverRole);
-      if (allianceRole) await member.roles.add(allianceRole);
+      if (allianceRole) {
+        await member.roles.add(allianceRole);
+        const formattedAlliance = allianceRole.name.substring(5); // Remove 'Tag: '
+        const newNickname = `[${formattedAlliance}] ${ingameName}`;
+        const existingMember = guild.members.cache.find(m => m.nickname === newNickname);
+        if (!existingMember) {
+          await member.setNickname(newNickname);
+        }
+      }
 
-      // Update nickname
-      const nickname = `[${alliance}] ${ingameName}`;
-      await member.setNickname(nickname.replace(/\[Tag:\s.*?\]\s/g, ''));
       await confirmationInteraction.update({ content: "Roles and nickname updated successfully!", components: [] });
     } else {
       await confirmationInteraction.update({ content: "Process aborted. Please restart if needed.", components: [] });
