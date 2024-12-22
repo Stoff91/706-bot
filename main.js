@@ -252,6 +252,7 @@ async function initiateOnboarding(member, guild) {
           console.error(`Server role not found: Srv: ${server}`);
           await dmChannel.send(`Server role not found: ${server}`);
         } else {
+          await member.roles.remove(unsetServer).catch(console.error);
           await member.roles.add(serverRole);
         }
 
@@ -264,6 +265,7 @@ async function initiateOnboarding(member, guild) {
             await member.setNickname(newNickname).catch(console.error);
           }
         } else {
+          await member.roles.remove(unsetAlliance).catch(console.error);
           await member.roles.add(allianceRole);
           const formattedAlliance = allianceRole.name.substring(5); // Remove 'Tag: '
           const newNickname = `[${formattedAlliance}] ${ingameName}`;
