@@ -12,6 +12,7 @@ const client = new Client({
   ],
 });
 
+const guild = client.guilds.cache.get('1310170318735802398');
 const unsetServer = guild.roles.cache.find(role => role.name === "Unset Server");
 const unsetAlliance = guild.roles.cache.find(role => role.name === "Unset Alliance");
 
