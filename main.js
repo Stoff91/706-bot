@@ -107,6 +107,7 @@ async function initiateProcess(member) {
 
         if (!guild) {
             await dmChannel.send("Error: Couldn't fetch the guild.");
+            const guild = client.guilds.cache.get('1310170318735802398')
             return;
         }
 
@@ -120,7 +121,7 @@ async function initiateProcess(member) {
         }
 
         // Handle alliance role assignment
-        const allianceRole = guild.roles.cache.find(role => role.name.toLowerCase() === alliance.toLowerCase()) ||
+        const allianceRole = guild.roles.cache.find(role => role.name.toLowerCase() === `tag: ${alliance.toLowerCase()}`) ||
                              guild.roles.cache.find(role => role.name === ROLE_UNSET_ALLIANCE);
 
         if (!allianceRole) {
