@@ -52,7 +52,10 @@ function sortButtonsAlphabetically(buttons) {
 
 async function initiateOnboarding(member, guild) {
   try {
-    const dmChannel = await member.createDM();
+    const dmChannel = await member.createDM().catch(() => {
+      throw new Error("Unable to create a DM channel with the user.");
+    });
+
     await dmChannel.send(
       "Welcome to Server #706! Please follow the instructions to set your nickname and enjoy your stay. " +
       "(This is currently in dev, if this message is here - disregard the instructions. Real men test in prod.)"
@@ -103,8 +106,8 @@ async function initiateOnboarding(member, guild) {
           await auditChannel.send(`User ${member} selected other server: ${server}`);
         }
 
-        await serverPromptMessage.delete().catch(console.error); // Clean up
-        await serverMessage.first().delete().catch(console.error); // Clean up
+        if (serverPromptMessage.deletable) await serverPromptMessage.delete().catch(console.error); // Clean up
+        if (serverMessage.first() && serverMessage.first().deletable) await serverMessage.first().delete().catch(console.error); // Clean up
       } catch (error) {
         console.error(`Error handling 'server_other': ${error.message}`);
         await dmChannel.send("You did not provide a server name in time. Please restart the onboarding process.");
@@ -160,8 +163,8 @@ async function initiateOnboarding(member, guild) {
           await auditChannel.send(`User ${member} selected other alliance: ${alliance}`);
         }
 
-        await alliancePromptMessage.delete().catch(console.error); // Clean up
-        await allianceMessage.first().delete().catch(console.error); // Clean up
+        if (alliancePromptMessage.deletable) await alliancePromptMessage.delete().catch(console.error); // Clean up
+        if (allianceMessage.first() && allianceMessage.first().deletable) await allianceMessage.first().delete().catch(console.error); // Clean up
       } catch (error) {
         console.error(`Error handling 'alliance_other': ${error.message}`);
         await dmChannel.send("You did not provide an alliance name in time. Please restart the onboarding process.");
@@ -260,7 +263,11 @@ async function initiateOnboarding(member, guild) {
     }
   } catch (error) {
     console.error(`Error: ${error}`);
-    await dmChannel.send(`An error occurred: ${error.message}`);
+    if (dmChannel) {
+      await dmChannel.send(`An error occurred: ${error.message}`).catch(() => {
+        console.error("Failed to send error message in DM channel.");
+      });
+    }
   }
 }
 
