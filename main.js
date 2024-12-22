@@ -79,6 +79,8 @@ async function initiateOnboarding(member, guild) {
     const serverInteraction = await dmChannel.awaitMessageComponent({
       filter: interaction => interaction.user.id === member.id && interaction.customId.startsWith("server_"),
       time: 60000
+    }).catch(() => {
+      throw new Error("Server selection timed out.");
     });
 
     let server;
@@ -134,6 +136,8 @@ async function initiateOnboarding(member, guild) {
     const allianceInteraction = await dmChannel.awaitMessageComponent({
       filter: interaction => interaction.user.id === member.id && interaction.customId.startsWith("alliance_"),
       time: 60000
+    }).catch(() => {
+      throw new Error("Alliance selection timed out.");
     });
 
     let alliance;
@@ -198,6 +202,8 @@ async function initiateOnboarding(member, guild) {
     const confirmationInteraction = await dmChannel.awaitMessageComponent({
       filter: interaction => interaction.user.id === member.id && interaction.customId.startsWith("confirm_"),
       time: 60000
+    }).catch(() => {
+      throw new Error("Confirmation timed out.");
     });
 
     if (confirmationInteraction.customId === "confirm_yes") {
@@ -223,8 +229,18 @@ async function initiateOnboarding(member, guild) {
 
         const serverRole = guild.roles.cache.find(role => role.name === `Srv: ${server}`);
         const allianceRole = guild.roles.cache.find(role => role.name === `Tag: ${alliance}`);
-        if (serverRole) await member.roles.add(serverRole);
-        if (allianceRole) {
+
+        if (!serverRole) {
+          console.error(`Server role not found: Srv: ${server}`);
+          await dmChannel.send(`Server role not found: ${server}`);
+        } else {
+          await member.roles.add(serverRole);
+        }
+
+        if (!allianceRole) {
+          console.error(`Alliance role not found: Tag: ${alliance}`);
+          await dmChannel.send(`Alliance role not found: ${alliance}`);
+        } else {
           await member.roles.add(allianceRole);
           const formattedAlliance = allianceRole.name.substring(5); // Remove 'Tag: '
           const newNickname = `[${formattedAlliance}] ${ingameName}`;
@@ -244,6 +260,7 @@ async function initiateOnboarding(member, guild) {
     }
   } catch (error) {
     console.error(`Error: ${error}`);
+    await dmChannel.send(`An error occurred: ${error.message}`);
   }
 }
 
