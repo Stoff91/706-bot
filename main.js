@@ -58,7 +58,7 @@ client.on('messageCreate', (message) => {
   if (message.content.toLowerCase() === 'hello') {
     message.reply('Hello');
   }
-  if (message.content.toLowerCase() === 'restart onboarding') {
+  if (message.content.toLowerCase() === '!restart onboarding') {
     message.reply('Lets go!');
     initiateProcess(message.author);
   }
@@ -142,10 +142,15 @@ async function initiateProcess(member) {
 async function askQuestion(dmChannel, question) {
     await dmChannel.send(question);
     const filter = response => response.author.bot === false;
-    const collected = await dmChannel.awaitMessages({ filter, max: 1, time: 60000 });
+    const collected = await dmChannel.awaitMessages({ filter, max: 1, time: 60000 }); // 30 minutes timeout (30 * 60 * 1000)
+    
+    if (collected.size === 0) {
+        await dmChannel.send("You took too long to respond. Please type `!restart onboarding` to restart the onboarding process.");
+        return null;  // Return null to indicate the timeout
+    }
+    
     return collected.first()?.content;
 }
-
 // Function to ask a yes/no question using buttons and return true/false
 async function askYesNoWithButtons(dmChannel, question) {
     const row = new ActionRowBuilder().addComponents(
