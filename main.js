@@ -95,18 +95,30 @@ async function initiateProcess(member) {
 
         // Set nickname and roles
         const guild = member.guild;
-        const allianceRole = guild.roles.cache.find(role => role.name === alliance) || 
+
+        // Handle server role assignment
+        const serverRole = guild.roles.cache.find(role => role.name.toLowerCase() === server.toLowerCase()) || 
+                            guild.roles.cache.find(role => role.name === ROLE_UNSET_SERVER);
+        if (serverRole) {
+            await member.roles.add(serverRole);
+        }
+
+        // Handle alliance role assignment
+        const allianceRole = guild.roles.cache.find(role => role.name.toLowerCase() === alliance.toLowerCase()) || 
                              guild.roles.cache.find(role => role.name === ROLE_UNSET_ALLIANCE);
-        if (allianceRole) await member.roles.add(allianceRole);
 
-        const newNickname = `[${alliance}] ${ingameName}`;
-        const existingMember = guild.members.cache.find(m => m.nickname === newNickname);
+        if (allianceRole) {
+            await member.roles.add(allianceRole);
+            const formattedAlliance = allianceRole.name; // Ensure correct case from role name
+            const newNickname = `[${formattedAlliance}] ${ingameName}`;
+            const existingMember = guild.members.cache.find(m => m.nickname === newNickname);
 
-        if (existingMember) {
-            const duplicateRole = guild.roles.cache.find(role => role.name === ROLE_DUPLICATE);
-            if (duplicateRole) await member.roles.add(duplicateRole);
-        } else {
-            await member.setNickname(newNickname);
+            if (existingMember) {
+                const duplicateRole = guild.roles.cache.find(role => role.name === ROLE_DUPLICATE);
+                if (duplicateRole) await member.roles.add(duplicateRole);
+            } else {
+                await member.setNickname(newNickname);
+            }
         }
 
         await dmChannel.send("Your nickname and roles have been successfully updated!");
@@ -116,6 +128,8 @@ async function initiateProcess(member) {
         return initiateProcess(member);
     }
 }
+
+
 
 // Function to ask a question and wait for a response
 async function askQuestion(dmChannel, question) {
