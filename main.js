@@ -106,9 +106,8 @@ async function initiateProcess(member) {
         const guild = member.guild;
 
         if (!guild) {
-            await dmChannel.send("Error: Couldn't fetch the guild.");
+            await dmChannel.send("Error: Couldn't fetch the guild. Setting again...");
             const guild = client.guilds.cache.get('1310170318735802398')
-            return;
         }
 
         // Handle server role assignment
