@@ -1,5 +1,6 @@
 require('dotenv').config();
-const { Client, IntentsBitField, GatewayIntentBits } = require('discord.js');
+// Import the discord.js library
+const { Client, IntentsBitField, Partials, MessageActionRow, MessageButton } = require('discord.js');
 
 const client = new Client({
   intents: [
@@ -56,6 +57,10 @@ client.on('messageCreate', (message) => {
   } 
   if (message.content.toLowerCase() === 'hello') {
     message.reply('Hello');
+  }
+  if (message.content.toLowerCase() === 'restart onboarding') {
+    message.reply('Lets go!');
+    initiateProcess(message.author);
   }
 });
 
