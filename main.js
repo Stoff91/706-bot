@@ -52,7 +52,7 @@ client.on('interactionCreate', async (interaction) => {
 });
 
 client.on('messageCreate', (message) => {
-  if (message.author.bot) {
+  if (message.member.bot) {
     return;
   } 
   if (message.content.toLowerCase() === 'hello') {
