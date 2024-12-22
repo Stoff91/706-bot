@@ -51,8 +51,9 @@ function sortButtonsAlphabetically(buttons) {
 }
 
 async function initiateOnboarding(member, guild) {
+  let dmChannel;
   try {
-    const dmChannel = await member.createDM().catch(() => {
+    dmChannel = await member.createDM().catch(() => {
       throw new Error("Unable to create a DM channel with the user.");
     });
 
@@ -81,8 +82,9 @@ async function initiateOnboarding(member, guild) {
     // Wait for server selection
     const serverInteraction = await dmChannel.awaitMessageComponent({
       filter: interaction => interaction.user.id === member.id && interaction.customId.startsWith("server_"),
-      time: 60000
+      time: 300000 // 5 minutes
     }).catch(() => {
+      dmChannel.send("Server selection timed out. You can restart the onboarding process by typing `!onboard`.").catch(console.error);
       throw new Error("Server selection timed out.");
     });
 
@@ -95,7 +97,7 @@ async function initiateOnboarding(member, guild) {
         const serverMessage = await dmChannel.awaitMessages({
           filter: msg => msg.author.id === member.id,
           max: 1,
-          time: 60000
+          time: 300000 // 5 minutes
         });
 
         server = serverMessage.first().content;
@@ -110,7 +112,7 @@ async function initiateOnboarding(member, guild) {
         if (serverMessage.first() && serverMessage.first().deletable) await serverMessage.first().delete().catch(console.error); // Clean up
       } catch (error) {
         console.error(`Error handling 'server_other': ${error.message}`);
-        await dmChannel.send("You did not provide a server name in time. Please restart the onboarding process.");
+        await dmChannel.send("You did not provide a server name in time. Please restart the onboarding process by typing `!onboard`.");
         return;
       }
     } else {
@@ -138,8 +140,9 @@ async function initiateOnboarding(member, guild) {
     // Wait for alliance selection
     const allianceInteraction = await dmChannel.awaitMessageComponent({
       filter: interaction => interaction.user.id === member.id && interaction.customId.startsWith("alliance_"),
-      time: 60000
+      time: 300000 // 5 minutes
     }).catch(() => {
+      dmChannel.send("Alliance selection timed out. You can restart the onboarding process by typing `!onboard`.").catch(console.error);
       throw new Error("Alliance selection timed out.");
     });
 
@@ -152,7 +155,7 @@ async function initiateOnboarding(member, guild) {
         const allianceMessage = await dmChannel.awaitMessages({
           filter: msg => msg.author.id === member.id,
           max: 1,
-          time: 60000
+          time: 300000 // 5 minutes
         });
 
         alliance = allianceMessage.first().content;
@@ -167,7 +170,7 @@ async function initiateOnboarding(member, guild) {
         if (allianceMessage.first() && allianceMessage.first().deletable) await allianceMessage.first().delete().catch(console.error); // Clean up
       } catch (error) {
         console.error(`Error handling 'alliance_other': ${error.message}`);
-        await dmChannel.send("You did not provide an alliance name in time. Please restart the onboarding process.");
+        await dmChannel.send("You did not provide an alliance name in time. Please restart the onboarding process by typing `!onboard`.");
         return;
       }
     } else {
@@ -180,7 +183,10 @@ async function initiateOnboarding(member, guild) {
     const nicknameMessage = await dmChannel.awaitMessages({
       filter: msg => msg.author.id === member.id,
       max: 1,
-      time: 60000
+      time: 300000 // 5 minutes
+    }).catch(() => {
+      dmChannel.send("Nickname input timed out. You can restart the onboarding process by typing `!onboard`.").catch(console.error);
+      throw new Error("Nickname input timed out.");
     });
     const ingameName = nicknameMessage.first().content;
 
@@ -204,8 +210,9 @@ async function initiateOnboarding(member, guild) {
 
     const confirmationInteraction = await dmChannel.awaitMessageComponent({
       filter: interaction => interaction.user.id === member.id && interaction.customId.startsWith("confirm_"),
-      time: 60000
+      time: 300000 // 5 minutes
     }).catch(() => {
+      dmChannel.send("Confirmation timed out. You can restart the onboarding process by typing `!onboard`.").catch(console.error);
       throw new Error("Confirmation timed out.");
     });
 
