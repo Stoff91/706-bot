@@ -301,11 +301,20 @@ client.on('messageCreate', async message => {
       await message.reply("Unable to find the server for onboarding.");
       return;
     }
-    const member = guild.members.cache.get(message.author.id);
-    if (!member) {
+
+    let member;
+    try {
+      // This fetch ensures we get the member from the API if not in cache
+      member = await guild.members.fetch(message.author.id);
+    } catch (error) {
+      // If user is not found or an error occurs
+      console.error('Failed to fetch member:', error);
       await message.reply("You are not a member of the server.");
       return;
     }
+
+    // If fetching is successful, 'member' will be defined
+    await message.reply("Onboarding sequence initiated!");
     initiateOnboarding(member, guild);
   }
 });
