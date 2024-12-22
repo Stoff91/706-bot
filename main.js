@@ -232,7 +232,6 @@ async function initiateOnboarding(member, guild) {
           if (auditChannel) {
             await auditChannel.send(`Duplicate detected for user ${member}`);
           }
-          return;
         }
 
         server = server.replace("Srv: ", "");
