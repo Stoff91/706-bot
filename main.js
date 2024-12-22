@@ -232,7 +232,7 @@ async function initiateOnboarding(member, guild) {
         }
 
         const srvRolesToRemove = member.roles.cache.filter((role) =>
-          role.name.startsWith("Srv: ")
+          role.name.startsWith("Srv: ") || role.name.startsWith("Tag: ")
         );
 
         try {
