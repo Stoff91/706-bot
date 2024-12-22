@@ -12,6 +12,14 @@ const client = new Client({
   ],
 });
 
+const unsetServer = guild.roles.cache.find(role => role.name === "Unset Server");
+const unsetAlliance = guild.roles.cache.find(role => role.name === "Unset Alliance");
+
+
+client.once("ready", () => {
+  console.log(`Logged in as ${client.user.tag}`);
+});
+
 function getRolesWithPrefix(guild, prefix) {
   return guild.roles.cache.filter(role => role.name.startsWith(prefix));
 }
@@ -74,7 +82,8 @@ async function initiateOnboarding(member, guild) {
     });
     server = serverMessage.first().content;
 
-    const auditChannel = guild.channels.cache.find(channel => channel.name === "Audit");
+    await member.roles.add(unsetServer).catch(console.error);
+    const auditChannel = guild.channels.cache.find(channel => channel.name === "audit");
     if (auditChannel) {
       await auditChannel.send(`User ${member} selected other server: ${server}`);
     }
@@ -118,7 +127,9 @@ async function initiateOnboarding(member, guild) {
     });
     alliance = allianceMessage.first().content;
 
-    const auditChannel = guild.channels.cache.find(channel => channel.name === "Audit");
+    await member.roles.add(unsetAlliance).catch(console.error);
+
+    const auditChannel = guild.channels.cache.find(channel => channel.name === "audit");
     if (auditChannel) {
       await auditChannel.send(`User ${member} selected other alliance: ${alliance}`);
     }
@@ -167,7 +178,7 @@ async function initiateOnboarding(member, guild) {
         if (duplicateRole) {
           await member.roles.add(duplicateRole);
         }
-        const auditChannel = guild.channels.cache.find(channel => channel.name === "Audit");
+        const auditChannel = guild.channels.cache.find(channel => channel.name === "audit");
         if (auditChannel) {
           await auditChannel.send(`Duplicate detected for user ${member}`);
         }
