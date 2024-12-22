@@ -75,46 +75,57 @@ client.on('guildMemberAdd', async (member) => {
 });
 
 
-// Function to initiate or restart the process
 async function initiateProcess(member) {
     const dmChannel = await member.createDM();
     await dmChannel.send(WELCOME_MESSAGE);
 
     try {
         const server = await askQuestion(dmChannel, "What SERVER are you on?");
+        if (!server) return; // If timeout occurs, exit
+
         const confirmServer = await askYesNoWithButtons(dmChannel, `You entered SERVER: ${server}. \nIs this correct? (yes/no)`);
-        if (!confirmServer) return initiateProcess(member);
+        if (!confirmServer) return initiateProcess(member); // If no response, restart the process
 
         const alliance = await askQuestion(dmChannel, "What ALLIANCE are you in?");
+        if (!alliance) return; // If timeout occurs, exit
+
         const confirmAlliance = await askYesNoWithButtons(dmChannel, `You entered ALLIANCE: ${alliance}. \nIs this correct? (yes/no)`);
-        if (!confirmAlliance) return initiateProcess(member);
+        if (!confirmAlliance) return initiateProcess(member); // If no response, restart the process
 
         const ingameName = await askQuestion(dmChannel, "What is your INGAME NAME?");
+        if (!ingameName) return; // If timeout occurs, exit
+
         const confirmName = await askYesNoWithButtons(dmChannel, `You entered NAME: ${ingameName}. \nIs this correct? (yes/no)`);
-        if (!confirmName) return initiateProcess(member);
+        if (!confirmName) return initiateProcess(member); // If no response, restart the process
 
         await dmChannel.send(`Thank you for following the prompt.\n Now, Confirming details:\n\nServer: ${server}\nAlliance: ${alliance}\nNickname: ${ingameName}`);
 
         const confirmAll = await askYesNoWithButtons(dmChannel, "Are these details correct? (yes/no)");
-        if (!confirmAll) return initiateProcess(member);
+        if (!confirmAll) return initiateProcess(member); // If no response, restart the process
 
-        // Set nickname and roles
         const guild = member.guild;
 
+        if (!guild) {
+            await dmChannel.send("Error: Couldn't fetch the guild.");
+            return;
+        }
+
         // Handle server role assignment
-        const serverRole = guild.roles.cache.find(role => role.name.toLowerCase() === `srv: ${server.toLowerCase()}`) || 
-                            guild.roles.cache.find(role => role.name === ROLE_UNSET_SERVER);
-        if (serverRole) {
+        const serverRole = guild.roles.cache.find(role => role.name.toLowerCase() === `srv: ${server.toLowerCase()}`) ||
+                           guild.roles.cache.find(role => role.name === ROLE_UNSET_SERVER);
+        if (!serverRole) {
+            await dmChannel.send("Error: Could not find server role.");
+        } else {
             await member.roles.add(serverRole);
         }
 
-        await member.roles.add(ROLE_NOT_VERIFIED);
-
         // Handle alliance role assignment
-        const allianceRole = guild.roles.cache.find(role => role.name.toLowerCase() === alliance.toLowerCase()) || 
+        const allianceRole = guild.roles.cache.find(role => role.name.toLowerCase() === alliance.toLowerCase()) ||
                              guild.roles.cache.find(role => role.name === ROLE_UNSET_ALLIANCE);
 
-        if (allianceRole) {
+        if (!allianceRole) {
+            await dmChannel.send("Error: Could not find alliance role.");
+        } else {
             await member.roles.add(allianceRole);
             const formattedAlliance = allianceRole.name; // Ensure correct case from role name
             const newNickname = `[${formattedAlliance}] ${ingameName}`;
