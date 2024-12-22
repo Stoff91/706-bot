@@ -16,7 +16,7 @@ const client = new Client({
 const WELCOME_MESSAGE = "Welcome to Server #706! Please follow the instructions to set your nickname and enjoy your stay. (This is curently in dev, if this message is here - disregard the instructions. Real men test in prod.)";
 const ROLE_DUPLICATE = "Duplicate";
 const ROLE_UNSET_ALLIANCE = "Unset Alliance";
-const ROLE_UNSET_NICKNAME = "Unset Nickname";
+const ROLE_NOT_VERIFIED = "Not Verified";
 const ROLE_UNSET_SERVER = "Unset Server";
 
 
@@ -107,6 +107,8 @@ async function initiateProcess(member) {
         if (serverRole) {
             await member.roles.add(serverRole);
         }
+
+        await member.roles.add(ROLE_NOT_VERIFIED);
 
         // Handle alliance role assignment
         const allianceRole = guild.roles.cache.find(role => role.name.toLowerCase() === alliance.toLowerCase()) || 
