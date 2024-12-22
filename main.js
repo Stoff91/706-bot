@@ -10,6 +10,7 @@ const client = new Client({
     IntentsBitField.Flags.MessageContent,
     IntentsBitField.Flags.DirectMessages
   ],
+  partials: [Partials.Channel]
 });
 
 let unsetServer; // Declare variables outside
@@ -288,7 +289,7 @@ client.on('guildMemberAdd', async member => {
 });
 
 client.on('messageCreate', async message => {
-  if (message.channel.type === 'DM' && message.content === '!onboard') {
+  if (message.channel.type === ChannelType.DM && message.content === '!onboard') {
     const guild = client.guilds.cache.get('1310170318735802398');
     if (!guild) {
       await message.reply("Unable to find the server for onboarding.");
