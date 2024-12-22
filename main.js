@@ -84,7 +84,7 @@ client.on('guildMemberAdd', async member => {
     } else {
       server = serverInteraction.customId.substring(7);
     }
-    await serverInteraction.deferUpdate();
+    await serverInteraction.update({ components: [] });
 
     // Step 2: Ask for the alliance role
     const allianceRoles = getRolesWithPrefix(guild, "Tag: ");
@@ -125,7 +125,7 @@ client.on('guildMemberAdd', async member => {
     } else {
       alliance = allianceInteraction.customId.substring(9);
     }
-    await allianceInteraction.deferUpdate();
+    await allianceInteraction.update({ components: [] });
 
     // Step 3: Ask for nickname
     await dmChannel.send("Please enter your in-game nickname:");
@@ -181,10 +181,11 @@ client.on('guildMemberAdd', async member => {
       if (allianceRole) await member.roles.add(allianceRole);
 
       // Update nickname
-      await member.setNickname(`[${alliance}] ${ingameName}`);
-      await dmChannel.send("Roles and nickname updated successfully!");
+      const nickname = `[${alliance}] ${ingameName}`;
+      await member.setNickname(nickname.replace(/\[Tag:\s.*?\]\s/g, ''));
+      await confirmationInteraction.update({ content: "Roles and nickname updated successfully!", components: [] });
     } else {
-      await dmChannel.send("Process aborted. Please restart if needed.");
+      await confirmationInteraction.update({ content: "Process aborted. Please restart if needed.", components: [] });
     }
   } catch (error) {
     console.error(`Error: ${error}`);
