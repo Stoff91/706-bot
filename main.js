@@ -97,7 +97,7 @@ async function initiateProcess(member) {
         const guild = member.guild;
 
         // Handle server role assignment
-        const serverRole = guild.roles.cache.find(role => role.name.toLowerCase() === server.toLowerCase()) || 
+        const serverRole = guild.roles.cache.find(role => role.name.toLowerCase() === `srv: ${server.toLowerCase()}`) || 
                             guild.roles.cache.find(role => role.name === ROLE_UNSET_SERVER);
         if (serverRole) {
             await member.roles.add(serverRole);
