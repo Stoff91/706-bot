@@ -7,6 +7,7 @@ const client = new Client({
     IntentsBitField.Flags.GuildMembers,
     IntentsBitField.Flags.GuildMessages,
     IntentsBitField.Flags.MessageContent,
+    IntentsBitField.Flags.DirectMessages,
   ],
 });
 
@@ -39,7 +40,7 @@ client.on('interactionCreate', async (interaction) => {
     // Replace with the actual YouTube link you want to return
     const youtubeLink = 'https://youtu.be/RFcAIQVkgjE'; // Replace with actual YouTube video ID
 
-    await interaction.reply("Here is the last war video: ${youtubeLink} - and yes, we won.");
+    await interaction.reply("Here is the last war video:" + ${youtubeLink} + " - and yes, we won.");
   }
 });
 
