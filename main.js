@@ -77,18 +77,18 @@ async function initiateProcess(member) {
 
     try {
         const server = await askQuestion(dmChannel, "What SERVER are you on?");
-        const confirmServer = await askYesNo(dmChannel, `You entered SERVER: ${server}. Is this correct? (yes/no)`);
+        const confirmServer = await askYesNo(dmChannel, `You entered SERVER: ${server}. \nIs this correct? (yes/no)`);
         if (!confirmServer) return initiateProcess(member);
 
         const alliance = await askQuestion(dmChannel, "What ALLIANCE are you in?");
-        const confirmAlliance = await askYesNo(dmChannel, `You entered ALLIANCE: ${alliance}. Is this correct? (yes/no)`);
+        const confirmAlliance = await askYesNo(dmChannel, `You entered ALLIANCE: ${alliance}. \nIs this correct? (yes/no)`);
         if (!confirmAlliance) return initiateProcess(member);
 
         const ingameName = await askQuestion(dmChannel, "What is your INGAME NAME?");
-        const confirmName = await askYesNo(dmChannel, `You entered NAME: ${ingameName}. Is this correct? (yes/no)`);
+        const confirmName = await askYesNo(dmChannel, `You entered NAME: ${ingameName}. \nIs this correct? (yes/no)`);
         if (!confirmName) return initiateProcess(member);
 
-        await dmChannel.send(`Confirming details:\nServer: ${server}\nAlliance: ${alliance}\nNickname: ${ingameName}`);
+        await dmChannel.send(`Thank you for following the prompt.\n Now, Confirming details:\n\nServer: ${server}\nAlliance: ${alliance}\nNickname: ${ingameName}`);
 
         const confirmAll = await askYesNo(dmChannel, "Are these details correct? (yes/no)");
         if (!confirmAll) return initiateProcess(member);
@@ -127,8 +127,12 @@ async function askQuestion(dmChannel, question) {
 
 // Function to ask a yes/no question and return true/false
 async function askYesNo(dmChannel, question) {
-    const answer = await askQuestion(dmChannel, question);
-    return answer?.toLowerCase() === 'yes';
+    while (true) {
+        const answer = await askQuestion(dmChannel, question);
+        if (answer?.toLowerCase() === 'yes') return true;
+        if (answer?.toLowerCase() === 'no') return false;
+        await dmChannel.send("Please respond with 'yes' or 'no'.");
+    }
 }
 
 
