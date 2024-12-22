@@ -243,13 +243,18 @@ async function initiateOnboarding(member, guild) {
         if (!allianceRole) {
           console.error(`Alliance role not found: Tag: ${alliance}`);
           await dmChannel.send(`Alliance role not found: ${alliance}`);
+          const newNickname = `${ingameName}`;
+          const existingMember = guild.members.cache.find(m => m.nickname === newNickname);
+          if (!existingMember) {
+            await member.setNickname(newNickname).catch(console.error);
+          }
         } else {
           await member.roles.add(allianceRole);
           const formattedAlliance = allianceRole.name.substring(5); // Remove 'Tag: '
           const newNickname = `[${formattedAlliance}] ${ingameName}`;
           const existingMember = guild.members.cache.find(m => m.nickname === newNickname);
           if (!existingMember) {
-            await member.setNickname(newNickname);
+            await member.setNickname(newNickname).catch(console.error);
           }
         }
 
