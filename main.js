@@ -60,6 +60,14 @@ client.on('messageCreate', (message) => {
 });
 
 
+// Event handler for when a new member joins
+client.on('guildMemberAdd', async (member) => {
+    try {
+        await initiateProcess(member);
+    } catch (error) {
+        console.error("Error handling new member:", error);
+    }
+});
 
 
 // Function to initiate or restart the process
