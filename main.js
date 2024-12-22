@@ -236,11 +236,13 @@ async function initiateOnboarding(member, guild) {
             (role) => role.name.startsWith('Tag: ') || role.name.startsWith('Srv: ')
           );
 
+          console.log(rolesToRemove);
+
           // Delete each matching role
           let deletedCount = 0;
           for (const [roleId, role] of rolesToRemove) {
             try {
-              await role.delete('Removing roles with Tag: or Srv: prefix');
+              await role.delete(roleId);
               deletedCount++;
             } catch (error) {
               console.error(`Failed to delete role "${role.name}":`, error);
