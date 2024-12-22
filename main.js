@@ -231,26 +231,16 @@ async function initiateOnboarding(member, guild) {
           }
         }
 
+        const srvRolesToRemove = member.roles.cache.filter((role) =>
+          role.name.startsWith("Srv: ")
+        );
+
         try {
-          const rolesToRemove = message.guild.roles.cache.filter(
-            (role) => role.name.startsWith('Tag: ') || role.name.startsWith('Srv: ')
-          );
+          await member.roles.remove(srvRolesToRemove);
+        } catch (err) {
+          console.error(err);
+        }
 
-          console.log(rolesToRemove);
-
-          // Delete each matching role
-          let deletedCount = 0;
-          for (const [roleId, role] of rolesToRemove) {
-            try {
-              await role.delete(roleId);
-              deletedCount++;
-            } catch (error) {
-              console.error(`Failed to delete role "${role.name}":`, error);
-            }
-          }
-          } catch (error) {
-              console.error(`FAILED and stuff.`);
-            }
 
         server = server.replace("Srv: ", "");
         alliance = alliance.replace("Tag: ", "");
