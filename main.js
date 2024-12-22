@@ -16,6 +16,14 @@ function getRolesWithPrefix(guild, prefix) {
   return guild.roles.cache.filter(role => role.name.startsWith(prefix));
 }
 
+function splitIntoRows(buttons, maxPerRow = 5) {
+  const rows = [];
+  for (let i = 0; i < buttons.length; i += maxPerRow) {
+    rows.push(new ActionRowBuilder().addComponents(buttons.slice(i, i + maxPerRow)));
+  }
+  return rows;
+}
+
 client.on('ready', () => {
   console.log(`Bot is ready as ${client.user.tag}`);
 });
@@ -42,8 +50,9 @@ client.on('guildMemberAdd', async member => {
       .setCustomId("server_other")
       .setStyle(ButtonStyle.Danger);
 
-    const serverRow = new ActionRowBuilder().addComponents([...serverButtons, otherServerButton]);
-    await dmChannel.send({ content: "What SERVER are you on?", components: [serverRow] });
+    serverButtons.push(otherServerButton);
+    const serverRows = splitIntoRows(serverButtons);
+    await dmChannel.send({ content: "What SERVER are you on?", components: serverRows });
 
     // Wait for server selection
     const serverInteraction = await dmChannel.awaitMessageComponent({
@@ -81,8 +90,9 @@ client.on('guildMemberAdd', async member => {
       .setCustomId("alliance_other")
       .setStyle(ButtonStyle.Danger);
 
-    const allianceRow = new ActionRowBuilder().addComponents([...allianceButtons, otherAllianceButton]);
-    await dmChannel.send({ content: "What ALLIANCE are you in?", components: [allianceRow] });
+    allianceButtons.push(otherAllianceButton);
+    const allianceRows = splitIntoRows(allianceButtons);
+    await dmChannel.send({ content: "What ALLIANCE are you in?", components: allianceRows });
 
     // Wait for alliance selection
     const allianceInteraction = await dmChannel.awaitMessageComponent({
