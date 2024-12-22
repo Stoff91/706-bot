@@ -24,6 +24,13 @@ function splitIntoRows(buttons, maxPerRow = 5) {
   return rows;
 }
 
+function sortButtonsAlphabetically(buttons) {
+  const sortedButtons = buttons.sort((a, b) => a.data.label.localeCompare(b.data.label));
+  const otherButton = sortedButtons.find(button => button.data.label === "Other");
+  const nonOtherButtons = sortedButtons.filter(button => button.data.label !== "Other");
+  return [...nonOtherButtons, otherButton];
+}
+
 client.on('ready', () => {
   console.log(`Bot is ready as ${client.user.tag}`);
 });
@@ -40,7 +47,7 @@ client.on('guildMemberAdd', async member => {
 
     // Step 1: Ask for the server role
     const serverRoles = getRolesWithPrefix(guild, "Srv: ");
-    const serverButtons = serverRoles.map(role => new ButtonBuilder()
+    let serverButtons = serverRoles.map(role => new ButtonBuilder()
       .setLabel(role.name.substring(5))
       .setCustomId(`server_${role.name}`)
       .setStyle(ButtonStyle.Primary));
@@ -51,6 +58,7 @@ client.on('guildMemberAdd', async member => {
       .setStyle(ButtonStyle.Danger);
 
     serverButtons.push(otherServerButton);
+    serverButtons = sortButtonsAlphabetically(serverButtons);
     const serverRows = splitIntoRows(serverButtons);
     await dmChannel.send({ content: "What SERVER are you on?", components: serverRows });
 
@@ -80,7 +88,7 @@ client.on('guildMemberAdd', async member => {
 
     // Step 2: Ask for the alliance role
     const allianceRoles = getRolesWithPrefix(guild, "Tag: ");
-    const allianceButtons = allianceRoles.map(role => new ButtonBuilder()
+    let allianceButtons = allianceRoles.map(role => new ButtonBuilder()
       .setLabel(role.name.substring(5))
       .setCustomId(`alliance_${role.name}`)
       .setStyle(ButtonStyle.Primary));
@@ -91,6 +99,7 @@ client.on('guildMemberAdd', async member => {
       .setStyle(ButtonStyle.Danger);
 
     allianceButtons.push(otherAllianceButton);
+    allianceButtons = sortButtonsAlphabetically(allianceButtons);
     const allianceRows = splitIntoRows(allianceButtons);
     await dmChannel.send({ content: "What ALLIANCE are you in?", components: allianceRows });
 
@@ -128,17 +137,29 @@ client.on('guildMemberAdd', async member => {
     const ingameName = nicknameMessage.first().content;
 
     // Confirmation
-    await dmChannel.send(
-      `Thank you for following the prompt.\nNow, Confirming details:\n\nServer: ${server}\nAlliance: ${alliance}\nNickname: ${ingameName}\n\nIs this correct? (Yes/No)`
-    );
+    const yesButton = new ButtonBuilder()
+      .setLabel("Yes")
+      .setCustomId("confirm_yes")
+      .setStyle(ButtonStyle.Success);
 
-    const confirmationMessage = await dmChannel.awaitMessages({
-      filter: msg => msg.author.id === member.id,
-      max: 1,
+    const noButton = new ButtonBuilder()
+      .setLabel("No")
+      .setCustomId("confirm_no")
+      .setStyle(ButtonStyle.Danger);
+
+    const confirmationRow = new ActionRowBuilder().addComponents(yesButton, noButton);
+
+    await dmChannel.send({
+      content: `Thank you for following the prompt.\nNow, Confirming details:\n\nServer: ${server}\nAlliance: ${alliance}\nNickname: ${ingameName}\n\nIs this correct?`,
+      components: [confirmationRow]
+    });
+
+    const confirmationInteraction = await dmChannel.awaitMessageComponent({
+      filter: interaction => interaction.user.id === member.id && interaction.customId.startsWith("confirm_"),
       time: 60000
     });
 
-    if (confirmationMessage.first().content.toLowerCase() === "yes") {
+    if (confirmationInteraction.customId === "confirm_yes") {
       // Check for duplicate
       const duplicateRole = guild.roles.cache.find(role => role.name === "Duplicate");
       const hasSrvOrTagRoles = member.roles.cache.some(role => role.name.startsWith("Srv: ") || role.name.startsWith("Tag: "));
