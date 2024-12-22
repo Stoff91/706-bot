@@ -168,6 +168,10 @@ async function initiateOnboarding(member, guild) {
         return;
       }
 
+
+
+      server = server.replace("Srv: ", "");
+      alliance = alliance.replace("Tag: ", "");
       // Assign roles
       console.log(`Alliance role not found: Tag: ${alliance}`);
       console.log(`Server role not found: Srv: ${server}`);
