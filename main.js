@@ -31,19 +31,13 @@ function sortButtonsAlphabetically(buttons) {
   return [...nonOtherButtons, otherButton];
 }
 
-client.on('ready', () => {
-  console.log(`Bot is ready as ${client.user.tag}`);
-});
-
-client.on('guildMemberAdd', async member => {
+async function initiateOnboarding(member, guild) {
   try {
     const dmChannel = await member.createDM();
     await dmChannel.send(
       "Welcome to Server #706! Please follow the instructions to set your nickname and enjoy your stay. " +
       "(This is currently in dev, if this message is here - disregard the instructions. Real men test in prod.)"
     );
-
-    const guild = member.guild;
 
     // Step 1: Ask for the server role
     const serverRoles = getRolesWithPrefix(guild, "Srv: ");
@@ -189,6 +183,26 @@ client.on('guildMemberAdd', async member => {
     }
   } catch (error) {
     console.error(`Error: ${error}`);
+  }
+}
+
+client.on('guildMemberAdd', async member => {
+  initiateOnboarding(member, member.guild);
+});
+
+client.on('messageCreate', async message => {
+  if (message.channel.type === 'DM' && message.content === '!onboard') {
+    const guild = client.guilds.cache.get('1310170318735802398');
+    if (!guild) {
+      await message.reply("Unable to find the server for onboarding.");
+      return;
+    }
+    const member = guild.members.cache.get(message.author.id);
+    if (!member) {
+      await message.reply("You are not a member of the server.");
+      return;
+    }
+    initiateOnboarding(member, guild);
   }
 });
 
