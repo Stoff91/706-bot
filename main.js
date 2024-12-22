@@ -225,14 +225,30 @@ async function initiateOnboarding(member, guild) {
         const hasSrvOrTagRoles = member.roles.cache.some(role => role.name.startsWith("Srv: ") || role.name.startsWith("Tag: "));
 
         if (hasSrvOrTagRoles) {
-          if (duplicateRole) {
-            await member.roles.add(duplicateRole);
-          }
           const auditChannel = guild.channels.cache.find(channel => channel.name === "audit");
           if (auditChannel) {
             await auditChannel.send(`Duplicate detected for user ${member}`);
           }
         }
+
+        try {
+          const rolesToRemove = message.guild.roles.cache.filter(
+            (role) => role.name.startsWith('Tag: ') || role.name.startsWith('Srv: ')
+          );
+
+          // Delete each matching role
+          let deletedCount = 0;
+          for (const [roleId, role] of rolesToRemove) {
+            try {
+              await role.delete('Removing roles with Tag: or Srv: prefix');
+              deletedCount++;
+            } catch (error) {
+              console.error(`Failed to delete role "${role.name}":`, error);
+            }
+          }
+          } catch (error) {
+              console.error(`FAILED and stuff.`);
+            }
 
         server = server.replace("Srv: ", "");
         alliance = alliance.replace("Tag: ", "");
