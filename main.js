@@ -12,13 +12,23 @@ const client = new Client({
   ],
 });
 
-const guild = client.guilds.cache.get('1310170318735802398');
-const unsetServer = guild.roles.cache.find(role => role.name === "Unset Server");
-const unsetAlliance = guild.roles.cache.find(role => role.name === "Unset Alliance");
-
+let unsetServer; // Declare variables outside
+let unsetAlliance;
 
 client.once("ready", () => {
   console.log(`Logged in as ${client.user.tag}`);
+
+  const guild = client.guilds.cache.get('1310170318735802398');
+  if (!guild) {
+    console.error("Guild not found!");
+    return;
+  }
+
+  unsetServer = guild.roles.cache.find(role => role.name === "Unset Server");
+  unsetAlliance = guild.roles.cache.find(role => role.name === "Unset Alliance");
+
+  if (!unsetServer) console.error("Unset Server role not found!");
+  if (!unsetAlliance) console.error("Unset Alliance role not found!");
 });
 
 function getRolesWithPrefix(guild, prefix) {
