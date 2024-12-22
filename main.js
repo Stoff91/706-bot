@@ -12,217 +12,152 @@ const client = new Client({
   ],
 });
 
-// Define configuration variables
-const WELCOME_MESSAGE = "Welcome to Server #706! Please follow the instructions to set your nickname and enjoy your stay. (This is curently in dev, if this message is here - disregard the instructions. Real men test in prod.)";
-const ROLE_DUPLICATE = "Duplicate";
-const ROLE_UNSET_ALLIANCE = "Unset Alliance";
-const ROLE_NOT_VERIFIED = "Not Verified";
-const ROLE_UNSET_SERVER = "Unset Server";
+function getRolesWithPrefix(guild, prefix) {
+  return guild.roles.cache.filter(role => role.name.startsWith(prefix));
+}
 
-
-//This is just for logging when bot comes online
-client.once('ready', async () => {
-  console.log('✅ Bot is online.');
-
-  // Registering commands when the bot starts 
-  const guild = client.guilds.cache.get('1310170318735802398'); // Replace with your guild ID
-
-
-//List commands for the bot here - here we're talking SLASH COMMANDS
-  if (guild) {
-    const commands = [
-      {
-        name: 'lastwar',
-        description: 'Get the last war YouTube link of our SVS.',
-      },
-    ];
-
-    await guild.commands.set(commands);
-    console.log('✅ Slash commands registered.');
-  }
+client.on('ready', () => {
+  console.log(`Bot is ready as ${client.user.tag}`);
 });
 
-client.on('interactionCreate', async (interaction) => {
-  if (!interaction.isCommand()) return;
-  const { commandName } = interaction;
-  if (commandName === 'lastwar') {
-    const youtubeLink = 'https://youtu.be/RFcAIQVkgjE'; // Replace with actual YouTube video ID
-    await interaction.reply(`Here is the last war video: ${youtubeLink} - and yes, we won.`);
-  }
-});
-
-client.on('messageCreate', (message) => {
-  if (message.member.bot) {
-    return;
-  } 
-  if (message.content.toLowerCase() === 'hello') {
-    message.reply('Hello');
-  }
-  if (message.content.toLowerCase() === '!restart onboarding') {
-    message.reply('Lets go!');
-    initiateProcess(initiateProcess(message.author.id));
-  }
-});
-
-
-// Event handler for when a new member joins
-client.on('guildMemberAdd', async (member) => {
+client.on('guildMemberAdd', async member => {
   try {
-    // Pass the userId to the initiateProcess function
-    await initiateProcess(member.user.id);
-  } catch (error) {
-    console.error("Error handling new member:", error);
-  }
-});
-
-
-async function initiateProcess(userId) {
     const dmChannel = await member.createDM();
-    await dmChannel.send(WELCOME_MESSAGE);
-
-    try {
-    // Predefined guild object
-    const guild = client.guilds.cache.get('1310170318735802398'); // Your guild ID here
-
-    // Fetch the GuildMember using the user ID
-    const member = await guild.members.fetch(userId);
-
-    // Now you have the member object with full guild-specific data
-    console.log(member.roles.cache.map(role => role.name)); // Logs all roles of the member
-
-    // Continue with your logic using the member object
-    // For example, setting a nickname or roles
-    // member.setNickname('NewNickname');
-
-  } catch (error) {
-    console.error('Error fetching member:', error);
-  }
-
-    try {
-        const server = await askQuestion(dmChannel, "What SERVER are you on?");
-        if (!server) return; // If timeout occurs, exit
-
-        const confirmServer = await askYesNoWithButtons(dmChannel, `You entered SERVER: ${server}. \nIs this correct? (yes/no)`);
-        if (!confirmServer) return initiateProcess(member); // If no response, restart the process
-
-        const alliance = await askQuestion(dmChannel, "What ALLIANCE are you in?");
-        if (!alliance) return; // If timeout occurs, exit
-
-        const confirmAlliance = await askYesNoWithButtons(dmChannel, `You entered ALLIANCE: ${alliance}. \nIs this correct? (yes/no)`);
-        if (!confirmAlliance) return initiateProcess(member); // If no response, restart the process
-
-        const ingameName = await askQuestion(dmChannel, "What is your INGAME NAME?");
-        if (!ingameName) return; // If timeout occurs, exit
-
-        const confirmName = await askYesNoWithButtons(dmChannel, `You entered NAME: ${ingameName}. \nIs this correct? (yes/no)`);
-        if (!confirmName) return initiateProcess(member); // If no response, restart the process
-
-        await dmChannel.send(`Thank you for following the prompt.\n Now, Confirming details:\n\nServer: ${server}\nAlliance: ${alliance}\nNickname: ${ingameName}`);
-
-        const confirmAll = await askYesNoWithButtons(dmChannel, "Are these details correct? (yes/no)");
-        if (!confirmAll) return initiateProcess(member); // If no response, restart the process
-
-        const guild = member.guild;
-
-        if (!guild) {
-            await dmChannel.send("Error: Couldn't fetch the guild. Setting again...");
-            const guild = client.guilds.cache.get('1310170318735802398')
-        }
-
-        // Handle server role assignment
-        const serverRole = guild.roles.cache.find(role => role.name.toLowerCase() === `srv: ${server.toLowerCase()}`) ||
-                           guild.roles.cache.find(role => role.name === ROLE_UNSET_SERVER);
-        if (!serverRole) {
-            await dmChannel.send("Error: Could not find server role.");
-        } else {
-            await member.roles.add(serverRole);
-        }
-
-        // Handle alliance role assignment
-        const allianceRole = guild.roles.cache.find(role => role.name.toLowerCase() === `tag: ${alliance.toLowerCase()}`) ||
-                             guild.roles.cache.find(role => role.name === ROLE_UNSET_ALLIANCE);
-
-        if (!allianceRole) {
-            await dmChannel.send("Error: Could not find alliance role.");
-        } else {
-            await member.roles.add(allianceRole);
-            const formattedAlliance = allianceRole.name; // Ensure correct case from role name
-            const newNickname = `[${formattedAlliance}] ${ingameName}`;
-            const existingMember = guild.members.cache.find(m => m.nickname === newNickname);
-
-            if (existingMember) {
-                const duplicateRole = guild.roles.cache.find(role => role.name === ROLE_DUPLICATE);
-                if (duplicateRole) await member.roles.add(duplicateRole);
-            } else {
-                await member.setNickname(newNickname);
-            }
-        }
-
-        await dmChannel.send("Your nickname and roles have been successfully updated!");
-    } catch (error) {
-        console.error("Error during process:", error);
-        await dmChannel.send("An error occurred. Restarting the process.");
-        return initiateProcess(member);
-    }
-}
-
-
-
-// Function to ask a question and wait for a response
-async function askQuestion(dmChannel, question) {
-    await dmChannel.send(question);
-    const filter = response => response.author.bot === false;
-    const collected = await dmChannel.awaitMessages({ filter, max: 1, time: 60000 }); // 30 minutes timeout (30 * 60 * 1000)
-    
-    if (collected.size === 0) {
-        await dmChannel.send("You took too long to respond. Please type `!restart onboarding` to restart the onboarding process.");
-        return null;  // Return null to indicate the timeout
-    }
-    
-    return collected.first()?.content;
-}
-// Function to ask a yes/no question using buttons and return true/false
-async function askYesNoWithButtons(dmChannel, question) {
-    const row = new ActionRowBuilder().addComponents(
-        new ButtonBuilder()
-            .setCustomId('yes')
-            .setLabel('Yes')
-            .setStyle(ButtonStyle.Success),
-        new ButtonBuilder()
-            .setCustomId('no')
-            .setLabel('No')
-            .setStyle(ButtonStyle.Danger)
+    await dmChannel.send(
+      "Welcome to Server #706! Please follow the instructions to set your nickname and enjoy your stay. " +
+      "(This is currently in dev, if this message is here - disregard the instructions. Real men test in prod.)"
     );
 
-    const message = await dmChannel.send({ content: question, components: [row] });
+    const guild = member.guild;
 
-    const filter = interaction => ['yes', 'no'].includes(interaction.customId) && interaction.user.id === dmChannel.recipient.id;
-    const collected = await message.awaitMessageComponent({ filter, time: 60000 });
+    // Step 1: Ask for the server role
+    const serverRoles = getRolesWithPrefix(guild, "Srv: ");
+    const serverButtons = serverRoles.map(role => new ButtonBuilder()
+      .setLabel(role.name.substring(5))
+      .setCustomId(`server_${role.name}`)
+      .setStyle(ButtonStyle.Primary));
 
-    if (collected.customId === 'yes') {
-        await collected.reply({ content: 'You selected Yes.', ephemeral: true });
-        return true;
-    } else if (collected.customId === 'no') {
-        await collected.reply({ content: 'You selected No.', ephemeral: true });
-        return false;
+    const otherServerButton = new ButtonBuilder()
+      .setLabel("Other")
+      .setCustomId("server_other")
+      .setStyle(ButtonStyle.Danger);
+
+    const serverRow = new ActionRowBuilder().addComponents([...serverButtons, otherServerButton]);
+    await dmChannel.send({ content: "What SERVER are you on?", components: [serverRow] });
+
+    // Wait for server selection
+    const serverInteraction = await dmChannel.awaitMessageComponent({
+      filter: interaction => interaction.user.id === member.id && interaction.customId.startsWith("server_"),
+      time: 60000
+    });
+
+    let server;
+    if (serverInteraction.customId === "server_other") {
+      await dmChannel.send("Please enter the server name:");
+      const serverMessage = await dmChannel.awaitMessages({
+        filter: msg => msg.author.id === member.id,
+        max: 1,
+        time: 60000
+      });
+      server = serverMessage.first().content;
+      const auditChannel = guild.channels.cache.find(channel => channel.name === "Audit");
+      if (auditChannel) {
+        await auditChannel.send(`User ${member} selected other server: ${server}`);
+      }
+    } else {
+      server = serverInteraction.customId.substring(7);
     }
-}
+    await serverInteraction.deferUpdate();
 
+    // Step 2: Ask for the alliance role
+    const allianceRoles = getRolesWithPrefix(guild, "Tag: ");
+    const allianceButtons = allianceRoles.map(role => new ButtonBuilder()
+      .setLabel(role.name.substring(5))
+      .setCustomId(`alliance_${role.name}`)
+      .setStyle(ButtonStyle.Primary));
 
+    const otherAllianceButton = new ButtonBuilder()
+      .setLabel("Other")
+      .setCustomId("alliance_other")
+      .setStyle(ButtonStyle.Danger);
 
+    const allianceRow = new ActionRowBuilder().addComponents([...allianceButtons, otherAllianceButton]);
+    await dmChannel.send({ content: "What ALLIANCE are you in?", components: [allianceRow] });
 
+    // Wait for alliance selection
+    const allianceInteraction = await dmChannel.awaitMessageComponent({
+      filter: interaction => interaction.user.id === member.id && interaction.customId.startsWith("alliance_"),
+      time: 60000
+    });
 
+    let alliance;
+    if (allianceInteraction.customId === "alliance_other") {
+      await dmChannel.send("Please enter the alliance name:");
+      const allianceMessage = await dmChannel.awaitMessages({
+        filter: msg => msg.author.id === member.id,
+        max: 1,
+        time: 60000
+      });
+      alliance = allianceMessage.first().content;
+      const auditChannel = guild.channels.cache.find(channel => channel.name === "Audit");
+      if (auditChannel) {
+        await auditChannel.send(`User ${member} selected other alliance: ${alliance}`);
+      }
+    } else {
+      alliance = allianceInteraction.customId.substring(9);
+    }
+    await allianceInteraction.deferUpdate();
 
+    // Step 3: Ask for nickname
+    await dmChannel.send("Please enter your in-game nickname:");
+    const nicknameMessage = await dmChannel.awaitMessages({
+      filter: msg => msg.author.id === member.id,
+      max: 1,
+      time: 60000
+    });
+    const ingameName = nicknameMessage.first().content;
 
+    // Confirmation
+    await dmChannel.send(
+      `Thank you for following the prompt.\nNow, Confirming details:\n\nServer: ${server}\nAlliance: ${alliance}\nNickname: ${ingameName}\n\nIs this correct? (Yes/No)`
+    );
 
+    const confirmationMessage = await dmChannel.awaitMessages({
+      filter: msg => msg.author.id === member.id,
+      max: 1,
+      time: 60000
+    });
 
+    if (confirmationMessage.first().content.toLowerCase() === "yes") {
+      // Check for duplicate
+      const duplicateRole = guild.roles.cache.find(role => role.name === "Duplicate");
+      const hasSrvOrTagRoles = member.roles.cache.some(role => role.name.startsWith("Srv: ") || role.name.startsWith("Tag: "));
+      if (hasSrvOrTagRoles) {
+        if (duplicateRole) {
+          await member.roles.add(duplicateRole);
+        }
+        const auditChannel = guild.channels.cache.find(channel => channel.name === "Audit");
+        if (auditChannel) {
+          await auditChannel.send(`Duplicate detected for user ${member}`);
+        }
+        return;
+      }
 
+      // Assign roles
+      const serverRole = guild.roles.cache.find(role => role.name === `Srv: ${server}`);
+      const allianceRole = guild.roles.cache.find(role => role.name === `Tag: ${alliance}`);
+      if (serverRole) await member.roles.add(serverRole);
+      if (allianceRole) await member.roles.add(allianceRole);
 
-
-
-
-
-
-
+      // Update nickname
+      await member.setNickname(`[${alliance}] ${ingameName}`);
+      await dmChannel.send("Roles and nickname updated successfully!");
+    } else {
+      await dmChannel.send("Process aborted. Please restart if needed.");
+    }
+  } catch (error) {
+    console.error(`Error: ${error}`);
+  }
+});
 
 client.login(process.env.BOT_TOKEN);
