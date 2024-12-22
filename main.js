@@ -220,21 +220,6 @@ async function initiateOnboarding(member, guild) {
     if (confirmationInteraction.customId === "confirm_yes") {
       await confirmationInteraction.update({ content: "Processing your choices...", components: [] }).catch(console.error);
 
-      try {
-        const duplicateRole = guild.roles.cache.find(role => role.name === "Duplicate");
-        const hasSrvOrTagRoles = member.roles.cache.some(role => role.name.startsWith("Srv: ") || role.name.startsWith("Tag: "));
-
-        if (hasSrvOrTagRoles) {
-          if (duplicateRole) {
-            await member.roles.add(duplicateRole);
-          }
-          const auditChannel = guild.channels.cache.find(channel => channel.name === "audit");
-          if (auditChannel) {
-            await auditChannel.send(`Duplicate detected for user ${member}`);
-          }
-          return;
-        }
-
         server = server.replace("Srv: ", "");
         alliance = alliance.replace("Tag: ", "");
 
