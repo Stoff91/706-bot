@@ -1,6 +1,6 @@
 require('dotenv').config();
 // Import the discord.js library
-const { Client, IntentsBitField, Partials, MessageActionRow, MessageButton } = require('discord.js');
+const { Client, IntentsBitField, Partials, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
 const client = new Client({
   intents: [
@@ -146,15 +146,15 @@ async function askQuestion(dmChannel, question) {
 
 // Function to ask a yes/no question using buttons and return true/false
 async function askYesNoWithButtons(dmChannel, question) {
-    const row = new MessageActionRow().addComponents(
-        new MessageButton()
+    const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
             .setCustomId('yes')
             .setLabel('Yes')
-            .setStyle('SUCCESS'),
-        new MessageButton()
+            .setStyle(ButtonStyle.Success),
+        new ButtonBuilder()
             .setCustomId('no')
             .setLabel('No')
-            .setStyle('DANGER')
+            .setStyle(ButtonStyle.Danger)
     );
 
     const message = await dmChannel.send({ content: question, components: [row] });
@@ -170,9 +170,6 @@ async function askYesNoWithButtons(dmChannel, question) {
         return false;
     }
 }
-
-
-
 
 
 
