@@ -350,7 +350,6 @@ client.on('messageCreate', async message => {
 
 
 
-
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
@@ -371,8 +370,6 @@ client.on('messageCreate', async (message) => {
         return sendNextQuestion(message.author);
     }
 });
-
-
 
 client.on('interactionCreate', async (interaction) => {
     if (!interaction.isButton()) return;
@@ -428,7 +425,7 @@ function logQuizStart(user) {
     const channel = client.channels.cache.get(CHANNEL_ID);
     const startTime = new Date().toLocaleString("en-US", { timeZone: "CET" });
     if (channel) {
-        channel.send(`@${user.username} - start - ${startTime}`);
+        channel.send(`<@${user.id}> - start - ${startTime}`);
     }
 }
 
@@ -447,7 +444,7 @@ function logQuizEnd(user, quiz) {
     const duration = Math.round((new Date() - quiz.startTime) / 1000); // Duration in seconds
 
     if (channel) {
-        channel.send(`@${user.username} - end - ${endTime} - ${results} - Score: ${score}/${quizQuestions.length} - Duration: ${duration} seconds`);
+        channel.send(`<@${user.id}> - end - ${endTime} - ${results} - Score: ${score}/${quizQuestions.length} - Duration: ${duration} seconds`);
     }
 }
 
