@@ -16,6 +16,7 @@ const client = new Client({
 let unsetServer; // Declare variables outside
 let unsetAlliance;
 const CHANNEL_ID = '1323289983246925885'; // Replace with your channel ID
+const QUIZ_TIMEOUT = 60; // Timeout in seconds (1 hour)
 
 const quizData = {
     name: "Test Quiz",
@@ -422,7 +423,8 @@ client.on('messageCreate', async (message) => {
         activeQuizzes[userId] = {
             startTime: new Date(),
             answers: [],
-            currentQuestionIndex: 0
+            currentQuestionIndex: 0,
+            timeout: setTimeout(() => handleQuizTimeout(userId), QUIZ_TIMEOUT * 1000)
         };
 
         logQuizStart(message.author);
@@ -437,6 +439,8 @@ client.on('interactionCreate', async (interaction) => {
     if (!activeQuizzes[userId]) {
         return interaction.reply({ content: "You don't have an active quiz.", ephemeral: true });
     }
+
+    clearTimeout(activeQuizzes[userId].timeout);
 
     const quiz = activeQuizzes[userId];
     const answer = interaction.customId;
@@ -457,6 +461,7 @@ client.on('interactionCreate', async (interaction) => {
         return interaction.reply({ content: "Thank you for completing the quiz!", ephemeral: true });
     }
 
+    quiz.timeout = setTimeout(() => handleQuizTimeout(userId), QUIZ_TIMEOUT * 1000);
     sendNextQuestion(interaction.user);
     interaction.deferUpdate();
 });
@@ -510,6 +515,25 @@ async function logQuizEnd(user, quiz) {
     if (channel) {
         channel.send(`<@${user.id}> (${member.displayName}) - end - ${endTime} - ${results} - Score: ${score}/${quizData.questions.length} - Duration: ${duration} seconds - ${quizData.name}`);
     }
+}
+
+async function handleQuizTimeout(userId) {
+    const channel = client.channels.cache.get(CHANNEL_ID);
+    const user = await client.users.fetch(userId);
+    const messages = await channel.messages.fetch({ limit: 100 });
+    const startMessage = messages.find(msg => msg.content.includes(`<@${userId}>`) && msg.content.includes(`- start -`) && msg.content.includes(quizData.name));
+
+    if (startMessage) {
+        const startTime = new Date(startMessage.createdTimestamp);
+        const duration = Math.round((Date.now() - startTime.getTime()) / 1000);
+
+        if (channel) {
+            channel.send(`<@${userId}> - timeout after ${duration} seconds. Quiz "${quizData.name}" was not completed.`);
+        }
+    }
+
+    delete activeQuizzes[userId];
+    user.send("Your quiz session has timed out. Please reinitialize the quiz by writing !quiz.");
 }
 
 
