@@ -523,13 +523,21 @@ async function handleQuizTimeout(userId) {
     const messages = await channel.messages.fetch({ limit: 100 });
     const startMessage = messages.find(msg => msg.content.includes(`<@${userId}>`) && msg.content.includes(`- start -`) && msg.content.includes(quizData.name));
 
+    let duration;
     if (startMessage) {
         const startTime = new Date(startMessage.createdTimestamp);
-        const duration = Math.round((Date.now() - startTime.getTime()) / 1000);
+        duration = Math.round((Date.now() - startTime.getTime()) / 1000);
+    } else if (activeQuizzes[userId]) {
+        // Fallback to active quiz start time if message isn't found
+        const startTime = activeQuizzes[userId].startTime;
+        duration = Math.round((Date.now() - startTime.getTime()) / 1000);
+    } else {
+        // Default fallback in case of no tracking
+        duration = QUIZ_TIMEOUT;
+    }
 
-        if (channel) {
-            channel.send(`<@${userId}> - timeout after ${duration} seconds. Quiz "${quizData.name}" was not completed.`);
-        }
+    if (channel) {
+        channel.send(`<@${userId}> - timeout after ${duration} seconds. Quiz "${quizData.name}" was not completed.`);
     }
 
     delete activeQuizzes[userId];
