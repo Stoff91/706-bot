@@ -548,6 +548,9 @@ async function handleQuizEndTime(userId) {
         // Calculate duration
         duration = Math.round((Date.now() - startTime.getTime()) / 1000);
         return duration;
+    } catch (error) {
+      console.error("Error calculating timeout duration:", error);
+    } return 999;
 }
 
 async function handleQuizTimeout(userId) {
