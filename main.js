@@ -37,7 +37,7 @@ const quizData = {
   let activeQuizzes = {}; // Tracks quiz progress
 
 
-client.once("ready", () => {
+client.once("ready", async () => {
   console.log(`Logged in as ${client.user.tag}`);
 
   const guild = client.guilds.cache.get('1310170318735802398');
