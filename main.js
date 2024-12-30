@@ -510,7 +510,7 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     // Existing button interaction handling for quiz questions
-    if (activeQuizzes[userId] && interaction.customId in quizData.questions[activeQuizzes[userId].currentQuestionIndex].options) {
+    if (activeQuizzes[userId] && quizData.questions[activeQuizzes[userId].currentQuestionIndex].options.includes(interaction.customId)) {
         clearTimeout(activeQuizzes[userId].timeout);
 
         const quiz = activeQuizzes[userId];
@@ -545,6 +545,7 @@ client.on('interactionCreate', async (interaction) => {
         sendNextQuestion(interaction.user);
     }
 });
+
 
 
 
