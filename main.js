@@ -570,8 +570,20 @@ client.on('interactionCreate', async (interaction) => {
             )
         );
 
+        const updatedEmbed = {
+            title: `Question ${quiz.currentQuestionIndex + 1}`,
+            description: currentQuestion.question,
+            color: 0x0099ff
+        };
+
+        // If the current question had an image, remove it from the embed
+        if (currentQuestion.attachment) {
+            updatedEmbed.image = null;
+        }
+
         await interaction.update({
-            embeds: [], // Clear embed
+            content: `You answered: ${answer}`,
+            embeds: [updatedEmbed], // Update the embed without the image
             components: [updatedRow]
         });
         quiz.currentQuestionIndex++;
