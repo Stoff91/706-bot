@@ -529,10 +529,12 @@ async function handleQuizTimeout(userId) {
         
         // Find the start message for the user and quiz
         const startMessage = messages.find(msg =>
-            msg.content.includes(`<@${userId}>`) &&
+            msg.content.includes(userId) &&
             msg.content.includes(`- start -`) &&
             msg.content.includes(quizData.name)
         );
+
+        console.log(startMessage);
 
         if (startMessage) {
             startTime = new Date(startMessage.createdTimestamp);
