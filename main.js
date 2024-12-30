@@ -351,6 +351,9 @@ client.on('messageCreate', async message => {
 
 
 
+client.on('messageCreate', async (message) => {
+    if (message.author.bot) return;
+
     // Initiate quiz in DMs
     if (message.channel.isDMBased() && message.content.toLowerCase() === '!quiz') {
         const userId = message.author.id;
@@ -368,6 +371,8 @@ client.on('messageCreate', async message => {
         return sendNextQuestion(message.author);
     }
 });
+
+
 
 client.on('interactionCreate', async (interaction) => {
     if (!interaction.isButton()) return;
