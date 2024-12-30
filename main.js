@@ -452,19 +452,32 @@ client.on('interactionCreate', async (interaction) => {
         selected: answer
     });
 
+    // Disable buttons in the current message
+    const updatedRow = new ActionRowBuilder().addComponents(
+        currentQuestion.options.map(option =>
+            new ButtonBuilder()
+                .setCustomId(option)
+                .setLabel(option)
+                .setStyle(option === answer ? ButtonStyle.Success : ButtonStyle.Secondary)
+                .setDisabled(true)
+        )
+    );
+
+    await interaction.update({ components: [updatedRow] });
+
     quiz.currentQuestionIndex++;
 
     // Check if quiz is complete
     if (quiz.currentQuestionIndex >= quizData.questions.length) {
         logQuizEnd(interaction.user, quiz);
         delete activeQuizzes[userId];
-        return interaction.reply({ content: "Thank you for completing the quiz!", ephemeral: true });
+        return interaction.followUp({ content: "Thank you for completing the quiz!", ephemeral: true });
     }
 
     quiz.timeout = setTimeout(() => handleQuizTimeout(userId), QUIZ_TIMEOUT * 1000);
     sendNextQuestion(interaction.user);
-    interaction.deferUpdate();
 });
+
 
 function sendNextQuestion(user) {
     const quiz = activeQuizzes[user.id];
