@@ -374,6 +374,16 @@ client.on('messageCreate', async (message) => {
     // Initiate quiz in DMs
     if (message.channel.isDMBased() && message.content.toLowerCase() === '!quiz') {
         const userId = message.author.id;
+
+        const channel = client.channels.cache.get(CHANNEL_ID);
+        const messages = await channel.messages.fetch({ limit: 100 });
+        const hasCompleted = messages.some(msg => msg.content.includes(`<@${userId}>`) && msg.content.includes("- end -"));
+
+        if (hasCompleted) {
+            channel.send(`<@${userId}> - attempted to start another quiz but already completed it.`);
+            return message.reply("You have already completed this quiz and cannot start another.");
+        }
+
         if (activeQuizzes[userId]) {
             return message.reply("You already have an active quiz!");
         }
@@ -470,6 +480,7 @@ async function logQuizEnd(user, quiz) {
         channel.send(`<@${user.id}> (${member.displayName}) - end - ${endTime} - ${results} - Score: ${score}/${quizQuestions.length} - Duration: ${duration} seconds`);
     }
 }
+
 
 
 
