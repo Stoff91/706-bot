@@ -497,32 +497,35 @@ client.on('interactionCreate', async (interaction) => {
     if (!interaction.isButton()) return;
 
     const userId = interaction.user.id;
-    // Check if the interaction is for the RPS game
-    if (!interaction.customId.startsWith("rps_")) return;
 
-    const choices = ["rock", "paper", "scissors"];
-    const emojis = { rock: "🪨", paper: "📄", scissors: "✂️" };
-    const botChoice = choices[Math.floor(Math.random() * choices.length)];
-    const userChoice = interaction.customId.split("_")[1];
+        // Check if the interaction is for the RPS game
+    if (interaction.customId.startsWith("rps_")) {
 
-    let result;
-    if (userChoice === botChoice) {
-        result = "It's a tie!";
-    } else if (
-        (userChoice === "rock" && botChoice === "scissors") ||
-        (userChoice === "paper" && botChoice === "rock") ||
-        (userChoice === "scissors" && botChoice === "paper")
-    ) {
-        result = "You win! 🎉";
-    } else {
-        result = "You lose! 😢";
+      const choices = ["rock", "paper", "scissors"];
+      const emojis = { rock: "🪨", paper: "📄", scissors: "✂️" };
+      const botChoice = choices[Math.floor(Math.random() * choices.length)];
+      const userChoice = interaction.customId.split("_")[1];
+
+      let result;
+      if (userChoice === botChoice) {
+          result = "It's a tie!";
+      } else if (
+          (userChoice === "rock" && botChoice === "scissors") ||
+          (userChoice === "paper" && botChoice === "rock") ||
+          (userChoice === "scissors" && botChoice === "paper")
+      ) {
+          result = "You win! 🎉";
+      } else {
+          result = "You lose! 😢";
+      }
+
+
+      await interaction.update({
+          content: `<@${userId}> chose ${emojis[userChoice]} and I chose ${emojis[botChoice]}. ${result}`,
+          embeds: [], // Clears the embed
+          components: []
+      });
     }
-
-    await interaction.update({
-        content: `<@${userId}> chose ${emojis[userChoice]} and I chose ${emojis[botChoice]}. ${result}`,
-        embeds: [], // Clears the embed
-        components: []
-    });
 
     // Handle quiz start confirmation
     if (interaction.customId === "start_quiz") {
