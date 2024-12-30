@@ -17,16 +17,16 @@ let unsetServer; // Declare variables outside
 let unsetAlliance;
   const CHANNEL_ID = '1323289983246925885'; // Replace with your channel ID
 
-  const quizQuestions = [
+const quizQuestions = [
     {
         question: "What is the capital of France?",
-        options: ["1. Berlin", "X. Paris", "2. Madrid"],
-        correct: "X"
+        options: ["Berlin", "Paris", "Madrid"],
+        correct: "Paris"
     },
     {
         question: "What is 2 + 2?",
-        options: ["1. 3", "X. 4", "2. 5"],
-        correct: "X"
+        options: ["3", "4", "5"],
+        correct: "4"
     }
 ];
 
