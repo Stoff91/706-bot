@@ -24,12 +24,14 @@ const quizData = {
         {
             question: "What is the capital of France?",
             options: ["Berlin", "Paris", "Madrid"],
-            correct: "Paris"
+            correct: "Paris",
+            attachment: "https://example.com/image-france.jpg" // Attachment URL
         },
         {
             question: "What is 2 + 2?",
             options: ["3", "4", "5"],
-            correct: "4"
+            correct: "4",
+            attachment: null // No attachment
         }
     ]
 };
@@ -530,10 +532,20 @@ function sendNextQuestion(user) {
 
     const row = new ActionRowBuilder().addComponents(buttons);
 
-    user.send({
-        content: `Question ${quiz.currentQuestionIndex + 1}: ${currentQuestion.question}`,
-        components: [row]
-    });
+    const content = `Question ${quiz.currentQuestionIndex + 1}: ${currentQuestion.question}`;
+
+    if (currentQuestion.attachment) {
+        user.send({
+            content: content,
+            components: [row],
+            files: [currentQuestion.attachment]
+        });
+    } else {
+        user.send({
+            content: content,
+            components: [row]
+        });
+    }
 }
 
 async function logQuizStart(user) {
