@@ -354,13 +354,11 @@ client.on('messageCreate', async message => {
 
 
 
-
-
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
     // Initiate quiz in DMs
-    if (message.channel.type === 'DM' && message.content.toLowerCase() === '!quiz') {
+    if (message.channel.isDMBased() && message.content.toLowerCase() === '!quiz') {
         const userId = message.author.id;
         if (activeQuizzes[userId]) {
             return message.reply("You already have an active quiz!");
@@ -447,7 +445,6 @@ function logQuizEnd(user, quiz) {
         channel.send(`@${user.username} - end - ${endTime} - ${results}`);
     }
 }
-
 
 
 
