@@ -15,20 +15,23 @@ const client = new Client({
 
 let unsetServer; // Declare variables outside
 let unsetAlliance;
-  const CHANNEL_ID = '1323289983246925885'; // Replace with your channel ID
+const CHANNEL_ID = '1323289983246925885'; // Replace with your channel ID
 
-const quizQuestions = [
-    {
-        question: "What is the capital of France?",
-        options: ["Berlin", "Paris", "Madrid"],
-        correct: "Paris"
-    },
-    {
-        question: "What is 2 + 2?",
-        options: ["3", "4", "5"],
-        correct: "4"
-    }
-];
+const quizData = {
+    name: "Test Quiz",
+    questions: [
+        {
+            question: "What is the capital of France?",
+            options: ["Berlin", "Paris", "Madrid"],
+            correct: "Paris"
+        },
+        {
+            question: "What is 2 + 2?",
+            options: ["3", "4", "5"],
+            correct: "4"
+        }
+    ]
+};
 
   let activeQuizzes = {}; // Tracks quiz progress
 
@@ -405,11 +408,11 @@ client.on('messageCreate', async (message) => {
 
         const channel = client.channels.cache.get(CHANNEL_ID);
         const messages = await channel.messages.fetch({ limit: 100 });
-        const hasCompleted = messages.some(msg => msg.content.includes(`<@${userId}>`) && msg.content.includes("- end -"));
+        const hasCompleted = messages.some(msg => msg.content.includes(`<@${userId}>`) && msg.content.includes(`- end -`) && msg.content.includes(quizData.name));
 
         if (hasCompleted) {
-            channel.send(`<@${userId}> - attempted to start another quiz but already completed it.`);
-            return message.reply("You have already completed this quiz and cannot start another.");
+            channel.send(`<@${userId}> - attempted to start another quiz but already completed ${quizData.name}.`);
+            return message.reply(`You have already completed the quiz "${quizData.name}" and cannot start it again.`);
         }
 
         if (activeQuizzes[userId]) {
@@ -439,7 +442,7 @@ client.on('interactionCreate', async (interaction) => {
     const answer = interaction.customId;
 
     // Record the answer
-    const currentQuestion = quizQuestions[quiz.currentQuestionIndex];
+    const currentQuestion = quizData.questions[quiz.currentQuestionIndex];
     quiz.answers.push({
         question: currentQuestion.question,
         selected: answer
@@ -448,7 +451,7 @@ client.on('interactionCreate', async (interaction) => {
     quiz.currentQuestionIndex++;
 
     // Check if quiz is complete
-    if (quiz.currentQuestionIndex >= quizQuestions.length) {
+    if (quiz.currentQuestionIndex >= quizData.questions.length) {
         logQuizEnd(interaction.user, quiz);
         delete activeQuizzes[userId];
         return interaction.reply({ content: "Thank you for completing the quiz!", ephemeral: true });
@@ -460,7 +463,7 @@ client.on('interactionCreate', async (interaction) => {
 
 function sendNextQuestion(user) {
     const quiz = activeQuizzes[user.id];
-    const currentQuestion = quizQuestions[quiz.currentQuestionIndex];
+    const currentQuestion = quizData.questions[quiz.currentQuestionIndex];
 
     const buttons = currentQuestion.options.map(option => 
         new ButtonBuilder()
@@ -484,7 +487,7 @@ async function logQuizStart(user) {
     const startTime = new Date().toLocaleString("en-US", { timeZone: "CET" });
 
     if (channel) {
-        channel.send(`<@${user.id}> (${member.displayName}) - start - ${startTime}`);
+        channel.send(`<@${user.id}> (${member.displayName}) - start - ${startTime} - ${quizData.name}`);
     }
 }
 
@@ -496,7 +499,7 @@ async function logQuizEnd(user, quiz) {
 
     let score = 0;
     const results = quiz.answers.map((answer, index) => {
-        if (answer.selected === quizQuestions[index].correct) {
+        if (answer.selected === quizData.questions[index].correct) {
             score++;
         }
         return `Q${index + 1}: ${answer.selected}`;
@@ -505,9 +508,10 @@ async function logQuizEnd(user, quiz) {
     const duration = Math.round((new Date() - quiz.startTime) / 1000); // Duration in seconds
 
     if (channel) {
-        channel.send(`<@${user.id}> (${member.displayName}) - end - ${endTime} - ${results} - Score: ${score}/${quizQuestions.length} - Duration: ${duration} seconds`);
+        channel.send(`<@${user.id}> (${member.displayName}) - end - ${endTime} - ${results} - Score: ${score}/${quizData.questions.length} - Duration: ${duration} seconds - ${quizData.name}`);
     }
 }
+
 
 
 
