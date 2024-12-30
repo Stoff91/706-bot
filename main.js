@@ -528,7 +528,7 @@ async function handleQuizTimeout(userId) {
         const messages = await channel.messages.fetch({ limit: 100 });
         
         // Find the start message for the user and quiz
-        const startMessage = messages.find(msg =>
+        const startMessage = messages.reverse().find(msg =>
             msg.content.includes(userId) &&
             msg.content.includes(`- start -`) &&
             msg.content.includes(quizData.name)
