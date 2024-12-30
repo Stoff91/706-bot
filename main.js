@@ -15,11 +15,6 @@ const client = new Client({
 
 let unsetServer; // Declare variables outside
 let unsetAlliance;
-
-client.once("ready", () => {
-  console.log(`Logged in as ${client.user.tag}`);
-
-  const guild = client.guilds.cache.get('1310170318735802398');
   const CHANNEL_ID = '1323289983246925885'; // Replace with your channel ID
 
   const quizQuestions = [
@@ -36,6 +31,12 @@ client.once("ready", () => {
 ];
 
   let activeQuizzes = {}; // Tracks quiz progress
+
+
+client.once("ready", () => {
+  console.log(`Logged in as ${client.user.tag}`);
+
+  const guild = client.guilds.cache.get('1310170318735802398');
 
 
   if (!guild) {
