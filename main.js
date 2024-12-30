@@ -360,7 +360,7 @@ client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
     // Initiate quiz in DMs
-    if (message.channel.type === 1 && message.content.toLowerCase() === '!quiz') {
+    if (message.channel.type === 'DM' && message.content.toLowerCase() === '!quiz') {
         const userId = message.author.id;
         if (activeQuizzes[userId]) {
             return message.reply("You already have an active quiz!");
@@ -375,42 +375,56 @@ client.on('messageCreate', async (message) => {
         logQuizStart(message.author);
         return sendNextQuestion(message.author);
     }
+});
 
-    // Handle quiz answers
-    if (message.channel.type === 1 && activeQuizzes[message.author.id]) {
-        const userId = message.author.id;
-        const quiz = activeQuizzes[userId];
-        const answer = message.content.toUpperCase();
+client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isButton()) return;
 
-        // Validate answer
-        const currentQuestion = quizQuestions[quiz.currentQuestionIndex];
-        if (!["1", "X", "2"].includes(answer)) {
-            return message.reply("Please answer with 1, X, or 2.");
-        }
-
-        quiz.answers.push({
-            question: currentQuestion.question,
-            selected: answer
-        });
-
-        quiz.currentQuestionIndex++;
-
-        // Check if quiz is complete
-        if (quiz.currentQuestionIndex >= quizQuestions.length) {
-            logQuizEnd(message.author, quiz);
-            delete activeQuizzes[userId];
-            return message.reply("Thank you for completing the quiz!");
-        }
-
-        sendNextQuestion(message.author);
+    const userId = interaction.user.id;
+    if (!activeQuizzes[userId]) {
+        return interaction.reply({ content: "You don't have an active quiz.", ephemeral: true });
     }
+
+    const quiz = activeQuizzes[userId];
+    const answer = interaction.customId;
+
+    // Record the answer
+    const currentQuestion = quizQuestions[quiz.currentQuestionIndex];
+    quiz.answers.push({
+        question: currentQuestion.question,
+        selected: answer
+    });
+
+    quiz.currentQuestionIndex++;
+
+    // Check if quiz is complete
+    if (quiz.currentQuestionIndex >= quizQuestions.length) {
+        logQuizEnd(interaction.user, quiz);
+        delete activeQuizzes[userId];
+        return interaction.reply({ content: "Thank you for completing the quiz!", ephemeral: true });
+    }
+
+    sendNextQuestion(interaction.user);
+    interaction.deferUpdate();
 });
 
 function sendNextQuestion(user) {
     const quiz = activeQuizzes[user.id];
     const currentQuestion = quizQuestions[quiz.currentQuestionIndex];
 
-    user.send(`Question ${quiz.currentQuestionIndex + 1}: ${currentQuestion.question}\n\nOptions:\n${currentQuestion.options.join('\n')}`);
+    const buttons = currentQuestion.options.map(option => 
+        new ButtonBuilder()
+            .setCustomId(option)
+            .setLabel(option)
+            .setStyle(ButtonStyle.Primary)
+    );
+
+    const row = new ActionRowBuilder().addComponents(buttons);
+
+    user.send({
+        content: `Question ${quiz.currentQuestionIndex + 1}: ${currentQuestion.question}`,
+        components: [row]
+    });
 }
 
 function logQuizStart(user) {
