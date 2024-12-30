@@ -20,6 +20,24 @@ client.once("ready", () => {
   console.log(`Logged in as ${client.user.tag}`);
 
   const guild = client.guilds.cache.get('1310170318735802398');
+  const CHANNEL_ID = '1323289983246925885'; // Replace with your channel ID
+
+  const quizQuestions = [
+    {
+        question: "What is the capital of France?",
+        options: ["1. Berlin", "X. Paris", "2. Madrid"],
+        correct: "X"
+    },
+    {
+        question: "What is 2 + 2?",
+        options: ["1. 3", "X. 4", "2. 5"],
+        correct: "X"
+    }
+];
+
+  let activeQuizzes = {}; // Tracks quiz progress
+
+
   if (!guild) {
     console.error("Guild not found!");
     return;
@@ -327,5 +345,117 @@ client.on('messageCreate', async message => {
     initiateOnboarding(member, guild);
   }
 });
+
+
+
+
+
+
+
+
+
+
+client.on('messageCreate', async (message) => {
+    if (message.author.bot) return;
+
+    // Initiate quiz in DMs
+    if (message.channel.type === 'DM' && message.content.toLowerCase() === '!quiz') {
+        const userId = message.author.id;
+        if (activeQuizzes[userId]) {
+            return message.reply("You already have an active quiz!");
+        }
+
+        activeQuizzes[userId] = {
+            startTime: new Date(),
+            answers: [],
+            currentQuestionIndex: 0
+        };
+
+        logQuizStart(message.author);
+        return sendNextQuestion(message.author);
+    }
+
+    // Handle quiz answers
+    if (message.channel.type === 'DM' && activeQuizzes[message.author.id]) {
+        const userId = message.author.id;
+        const quiz = activeQuizzes[userId];
+        const answer = message.content.toUpperCase();
+
+        // Validate answer
+        const currentQuestion = quizQuestions[quiz.currentQuestionIndex];
+        if (!["1", "X", "2"].includes(answer)) {
+            return message.reply("Please answer with 1, X, or 2.");
+        }
+
+        quiz.answers.push({
+            question: currentQuestion.question,
+            selected: answer
+        });
+
+        quiz.currentQuestionIndex++;
+
+        // Check if quiz is complete
+        if (quiz.currentQuestionIndex >= quizQuestions.length) {
+            logQuizEnd(message.author, quiz);
+            delete activeQuizzes[userId];
+            return message.reply("Thank you for completing the quiz!");
+        }
+
+        sendNextQuestion(message.author);
+    }
+});
+
+function sendNextQuestion(user) {
+    const quiz = activeQuizzes[user.id];
+    const currentQuestion = quizQuestions[quiz.currentQuestionIndex];
+
+    user.send(`Question ${quiz.currentQuestionIndex + 1}: ${currentQuestion.question}\n\nOptions:\n${currentQuestion.options.join('\n')}`);
+}
+
+function logQuizStart(user) {
+    const channel = client.channels.cache.get(CHANNEL_ID);
+    const startTime = new Date().toLocaleString("en-US", { timeZone: "CET" });
+    if (channel) {
+        channel.send(`@${user.username} - start - ${startTime}`);
+    }
+}
+
+function logQuizEnd(user, quiz) {
+    const channel = client.channels.cache.get(CHANNEL_ID);
+    const endTime = new Date().toLocaleString("en-US", { timeZone: "CET" });
+
+    const results = quiz.answers.map(
+        (answer, index) => `Q${index + 1}: ${answer.selected}`
+    ).join(', ');
+
+    if (channel) {
+        channel.send(`@${user.username} - end - ${endTime} - ${results}`);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 client.login(process.env.BOT_TOKEN);
