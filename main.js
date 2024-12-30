@@ -53,6 +53,14 @@ client.once("ready", () => {
 
   if (!unsetServer) console.error("Unset Server role not found!");
   if (!unsetAlliance) console.error("Unset Alliance role not found!");
+
+  try {
+        const user = await client.users.fetch('189751471376564228');
+        await user.send("Hello! The bot is now online.");
+        console.log("DM sent to user 189751471376564228.");
+    } catch (error) {
+        console.error("Failed to send DM to user 189751471376564228:", error);
+    }
 });
 
 function getRolesWithPrefix(guild, prefix) {
