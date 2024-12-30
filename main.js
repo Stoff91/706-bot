@@ -359,7 +359,7 @@ client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
     // Initiate quiz in DMs
-    if (message.channel.type === 'DM' && message.content.toLowerCase() === '!quiz') {
+    if (message.channel.type === 1 && message.content.toLowerCase() === '!quiz') {
         const userId = message.author.id;
         if (activeQuizzes[userId]) {
             return message.reply("You already have an active quiz!");
@@ -376,7 +376,7 @@ client.on('messageCreate', async (message) => {
     }
 
     // Handle quiz answers
-    if (message.channel.type === 'DM' && activeQuizzes[message.author.id]) {
+    if (message.channel.type === 1 && activeQuizzes[message.author.id]) {
         const userId = message.author.id;
         const quiz = activeQuizzes[userId];
         const answer = message.content.toUpperCase();
