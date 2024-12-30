@@ -347,7 +347,35 @@ client.on('messageCreate', async message => {
   }
 });
 
+client.on('messageCreate', async (message) => {
+    // Check if the message content is "!delete-bot" and the author is the server owner
+    if (message.content === '!delete-bot') {
+        try {
+            const guildOwnerId = message.guild.ownerId; // Get server owner's ID
 
+            if (message.author.id !== guildOwnerId) {
+                return message.reply("Only the server owner can use this command.");
+            }
+
+            // Fetch messages in the channel
+            const messages = await message.channel.messages.fetch();
+
+            // Filter messages to only include those sent by the bot
+            const botMessages = messages.filter(msg => msg.author.id === client.user.id);
+
+            // Bulk delete the bot's messages
+            for (const botMessage of botMessages.values()) {
+                await botMessage.delete();
+            }
+
+            // Notify the owner
+            await message.channel.send("All bot messages in this channel have been deleted.");
+        } catch (error) {
+            console.error("Error deleting bot messages:", error);
+            message.channel.send("An error occurred while trying to delete bot messages.");
+        }
+    }
+});
 
 
 
