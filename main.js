@@ -520,35 +520,41 @@ async function logQuizEnd(user, quiz) {
 async function handleQuizTimeout(userId) {
     const channel = client.channels.cache.get(CHANNEL_ID);
     const user = await client.users.fetch(userId);
-    const messages = await channel.messages.fetch({ limit: 100 });
-    const startMessage = messages.find(msg => msg.content.includes(`<@${userId}>`) && msg.content.includes(`- start -`) && msg.content.includes(quizData.name));
 
     let duration;
-    if (startMessage) {
-        const startTime = new Date(startMessage.createdTimestamp);
-        duration = Math.round((Date.now() - startTime.getTime()) / 1000);
-    } else if (activeQuizzes[userId]) {
-        // Fallback to active quiz start time if message isn't found
-        const startTime = activeQuizzes[userId].startTime;
-        duration = Math.round((Date.now() - startTime.getTime()) / 1000);
-    } else {
-        // Default fallback in case of no tracking
-        duration = QUIZ_TIMEOUT;
+    try {
+        // Find the start message for the quiz
+        const messages = await channel.messages.fetch({ limit: 100 });
+        const startMessage = messages.find(msg =>
+            msg.content.includes(`<@${userId}>`) &&
+            msg.content.includes(`- start -`) &&
+            msg.content.includes(quizData.name)
+        );
+
+        if (startMessage) {
+            const startTime = new Date(startMessage.createdTimestamp);
+            duration = Math.round((Date.now() - startTime.getTime()) / 1000); // Calculate duration from start message
+        } else if (activeQuizzes[userId]) {
+            // Fallback to active quiz start time
+            const startTime = activeQuizzes[userId].startTime;
+            duration = Math.round((Date.now() - startTime.getTime()) / 1000);
+        } else {
+            duration = QUIZ_TIMEOUT; // Default to timeout value
+        }
+
+        // Log timeout in the channel
+        if (channel) {
+            channel.send(`<@${userId}> - timeout after ${duration} seconds. Quiz "${quizData.name}" was not completed.`);
+        }
+    } catch (error) {
+        console.error("Error calculating timeout duration:", error);
+        duration = QUIZ_TIMEOUT; // Default in case of an error
     }
 
-    if (channel) {
-        channel.send(`<@${userId}> - timeout after ${duration} seconds. Quiz "${quizData.name}" was not completed.`);
-    }
-
+    // Remove active quiz and notify user
     delete activeQuizzes[userId];
     user.send("Your quiz session has timed out. Please reinitialize the quiz by writing !quiz.");
 }
-
-
-
-
-
-
 
 
 
