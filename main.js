@@ -314,7 +314,7 @@ async function initiateOnboarding(member, guild) {
 
 client.on('messageCreate', (message) => {
   console.log(
-    `[DM Test] channelType=${message.channel.type}, content="${message.content}"`
+    `[Message Log] channelType=${message.channel.type}, content="${message.content}"`
   );
 });
 
@@ -352,7 +352,26 @@ client.on('messageCreate', async message => {
 
 
 
+client.on('messageCreate', async (message) => {
+    if (message.author.bot) return;
 
+    // Initiate quiz in DMs
+    if (message.channel.isDMBased() && message.content.toLowerCase() === '!quiz') {
+        const userId = message.author.id;
+        if (activeQuizzes[userId]) {
+            return message.reply("You already have an active quiz!");
+        }
+
+        activeQuizzes[userId] = {
+            startTime: new Date(),
+            answers: [],
+            currentQuestionIndex: 0
+        };
+
+        logQuizStart(message.author);
+        return sendNextQuestion(message.author);
+    }
+});
 
 client.on('interactionCreate', async (interaction) => {
     if (!interaction.isButton()) return;
