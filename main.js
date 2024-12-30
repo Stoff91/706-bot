@@ -351,10 +351,6 @@ client.on('messageCreate', async message => {
 
 
 
-
-client.on('messageCreate', async (message) => {
-    if (message.author.bot) return;
-
     // Initiate quiz in DMs
     if (message.channel.isDMBased() && message.content.toLowerCase() === '!quiz') {
         const userId = message.author.id;
@@ -443,8 +439,10 @@ function logQuizEnd(user, quiz) {
         return `Q${index + 1}: ${answer.selected}`;
     }).join(', ');
 
+    const duration = Math.round((new Date() - quiz.startTime) / 1000); // Duration in seconds
+
     if (channel) {
-        channel.send(`@${user.username} - end - ${endTime} - ${results} - Score: ${score}/${quizQuestions.length}`);
+        channel.send(`@${user.username} - end - ${endTime} - ${results} - Score: ${score}/${quizQuestions.length} - Duration: ${duration} seconds`);
     }
 }
 
