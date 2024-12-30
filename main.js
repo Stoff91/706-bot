@@ -25,7 +25,7 @@ const quizData = {
             question: "What is the capital of France?",
             options: ["Berlin", "Paris", "Madrid"],
             correct: "Paris",
-            attachment: "https://example.com/image-france.jpg" // Attachment URL
+            attachment: "https://as1.ftcdn.net/v2/jpg/01/13/45/30/1000_F_113453008_oy6351w1GARbsyIDggn71Wuquduj5m6j.jpg" // Attachment URL
         },
         {
             question: "What is 2 + 2?",
