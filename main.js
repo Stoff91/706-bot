@@ -389,6 +389,34 @@ client.on('messageCreate', async message => {
             await dmChannel.send("An error occurred while trying to delete messages.");
         }
     }
+
+
+    if (message.content.toLowerCase() === '!lesbo') {
+        const embed = {
+            title: "Rock, Paper, Scissors!",
+            description: "Choose your move by clicking one of the buttons below:",
+            color: 0x0099ff
+        };
+
+        const rockButton = new ButtonBuilder()
+            .setLabel("Rock 🪨")
+            .setCustomId("rps_rock")
+            .setStyle(ButtonStyle.Primary);
+
+        const paperButton = new ButtonBuilder()
+            .setLabel("Paper 📄")
+            .setCustomId("rps_paper")
+            .setStyle(ButtonStyle.Primary);
+
+        const scissorsButton = new ButtonBuilder()
+            .setLabel("Scissors ✂️")
+            .setCustomId("rps_scissors")
+            .setStyle(ButtonStyle.Primary);
+
+        const row = new ActionRowBuilder().addComponents(rockButton, paperButton, scissorsButton);
+
+        await message.reply({ embeds: [embed], components: [row] });
+    }
 });
 
 client.on('messageCreate', async (message) => {
@@ -420,25 +448,6 @@ client.on('messageCreate', async (message) => {
         }
     }
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 client.on('messageCreate', async (message) => {
     if (message.channel.isDMBased() && message.content.toLowerCase() === '!quiz') {
@@ -488,6 +497,31 @@ client.on('interactionCreate', async (interaction) => {
     if (!interaction.isButton()) return;
 
     const userId = interaction.user.id;
+    // Check if the interaction is for the RPS game
+    if (!interaction.customId.startsWith("rps_")) return;
+
+    const choices = ["rock", "paper", "scissors"];
+    const emojis = { rock: "🪨", paper: "📄", scissors: "✂️" };
+    const botChoice = choices[Math.floor(Math.random() * choices.length)];
+    const userChoice = interaction.customId.split("_")[1];
+
+    let result;
+    if (userChoice === botChoice) {
+        result = "It's a tie!";
+    } else if (
+        (userChoice === "rock" && botChoice === "scissors") ||
+        (userChoice === "paper" && botChoice === "rock") ||
+        (userChoice === "scissors" && botChoice === "paper")
+    ) {
+        result = "You win! 🎉";
+    } else {
+        result = "You lose! 😢";
+    }
+
+    await interaction.update({
+        content: `You chose ${emojis[userChoice]} and I chose ${emojis[botChoice]}. ${result}`,
+        components: []
+    });
 
     // Handle quiz start confirmation
     if (interaction.customId === "start_quiz") {
@@ -545,9 +579,6 @@ client.on('interactionCreate', async (interaction) => {
         sendNextQuestion(interaction.user);
     }
 });
-
-
-
 
 function sendNextQuestion(user) {
     const quiz = activeQuizzes[user.id];
@@ -690,24 +721,5 @@ async function handleQuizTimeout(userId) {
     delete activeQuizzes[userId];
     user.send("Your quiz session has timed out. Please reinitialize the quiz by writing !quiz.");
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 client.login(process.env.BOT_TOKEN);
