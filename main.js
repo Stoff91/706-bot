@@ -510,11 +510,44 @@ async function logQuizEnd(user, quiz) {
         return `Q${index + 1}: ${answer.selected}`;
     }).join(', ');
 
-    const duration = Math.round((new Date() - quiz.startTime) / 1000); // Duration in seconds
+    const duration = await handleQuizEndTime(user.id);
 
     if (channel) {
         channel.send(`<@${user.id}> (${member.displayName}) - end - ${endTime} - ${results} - Score: ${score}/${quizData.questions.length} - Duration: ${duration} seconds - ${quizData.name}`);
     }
+}
+
+async function handleQuizEndTime(userId) {
+    const channel = client.channels.cache.get(CHANNEL_ID);
+    const user = await client.users.fetch(userId);
+    let duration = 0;
+    let startTime;
+
+    try {
+        const messages = await channel.messages.fetch({ limit: 100 });
+        
+        // Find the start message for the user and quiz
+        const startMessage = messages.reverse().find(msg =>
+            msg.content.includes(userId) &&
+            msg.content.includes(`- start -`) &&
+            msg.content.includes(quizData.name)
+        );
+
+        console.log(startMessage);
+
+        if (startMessage) {
+            startTime = new Date(startMessage.createdTimestamp);
+        } else if (activeQuizzes[userId]) {
+            // Fallback to active quiz start time
+            startTime = activeQuizzes[userId].startTime;
+        } else {
+            // Default to current time if all else fails
+            startTime = new Date();
+        }
+
+        // Calculate duration
+        duration = Math.round((Date.now() - startTime.getTime()) / 1000);
+        return duration;
 }
 
 async function handleQuizTimeout(userId) {
@@ -525,7 +558,7 @@ async function handleQuizTimeout(userId) {
     let startTime;
 
     try {
-        const messages = await channel.messages.fetch({ limit: 100 });
+        const messages = await channel.messages.fetch({ limit: 10000 });
         
         // Find the start message for the user and quiz
         const startMessage = messages.reverse().find(msg =>
@@ -555,7 +588,7 @@ async function handleQuizTimeout(userId) {
         }
     } catch (error) {
         console.error("Error calculating timeout duration:", error);
-        duration = QUIZ_TIMEOUT; // Default to timeout duration in case of error
+        duration = 999; // Default to timeout duration in case of error
     }
 
     // Remove active quiz and notify user
