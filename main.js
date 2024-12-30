@@ -354,27 +354,6 @@ client.on('messageCreate', async message => {
 
 
 
-client.on('messageCreate', async (message) => {
-    if (message.author.bot) return;
-
-    // Initiate quiz in DMs
-    if (message.channel.isDMBased() && message.content.toLowerCase() === '!quiz') {
-        const userId = message.author.id;
-        if (activeQuizzes[userId]) {
-            return message.reply("You already have an active quiz!");
-        }
-
-        activeQuizzes[userId] = {
-            startTime: new Date(),
-            answers: [],
-            currentQuestionIndex: 0
-        };
-
-        logQuizStart(message.author);
-        return sendNextQuestion(message.author);
-    }
-});
-
 client.on('interactionCreate', async (interaction) => {
     if (!interaction.isButton()) return;
 
@@ -437,12 +416,16 @@ function logQuizEnd(user, quiz) {
     const channel = client.channels.cache.get(CHANNEL_ID);
     const endTime = new Date().toLocaleString("en-US", { timeZone: "CET" });
 
-    const results = quiz.answers.map(
-        (answer, index) => `Q${index + 1}: ${answer.selected}`
-    ).join(', ');
+    let score = 0;
+    const results = quiz.answers.map((answer, index) => {
+        if (answer.selected === quizQuestions[index].correct) {
+            score++;
+        }
+        return `Q${index + 1}: ${answer.selected}`;
+    }).join(', ');
 
     if (channel) {
-        channel.send(`@${user.username} - end - ${endTime} - ${results}`);
+        channel.send(`@${user.username} - end - ${endTime} - ${results} - Score: ${score}/${quizQuestions.length}`);
     }
 }
 
