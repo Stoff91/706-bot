@@ -350,6 +350,24 @@ client.on('messageCreate', async message => {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
@@ -421,16 +439,21 @@ function sendNextQuestion(user) {
     });
 }
 
-function logQuizStart(user) {
+async function logQuizStart(user) {
     const channel = client.channels.cache.get(CHANNEL_ID);
+    const guild = channel.guild;
+    const member = await guild.members.fetch(user.id);
     const startTime = new Date().toLocaleString("en-US", { timeZone: "CET" });
+
     if (channel) {
-        channel.send(`<@${user.id}> - start - ${startTime}`);
+        channel.send(`<@${user.id}> (${member.displayName}) - start - ${startTime}`);
     }
 }
 
-function logQuizEnd(user, quiz) {
+async function logQuizEnd(user, quiz) {
     const channel = client.channels.cache.get(CHANNEL_ID);
+    const guild = channel.guild;
+    const member = await guild.members.fetch(user.id);
     const endTime = new Date().toLocaleString("en-US", { timeZone: "CET" });
 
     let score = 0;
@@ -444,10 +467,9 @@ function logQuizEnd(user, quiz) {
     const duration = Math.round((new Date() - quiz.startTime) / 1000); // Duration in seconds
 
     if (channel) {
-        channel.send(`<@${user.id}> - end - ${endTime} - ${results} - Score: ${score}/${quizQuestions.length} - Duration: ${duration} seconds`);
+        channel.send(`<@${user.id}> (${member.displayName}) - end - ${endTime} - ${results} - Score: ${score}/${quizQuestions.length} - Duration: ${duration} seconds`);
     }
 }
-
 
 
 
