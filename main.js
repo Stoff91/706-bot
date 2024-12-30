@@ -441,9 +441,6 @@ client.on('messageCreate', async (message) => {
 
 
 client.on('messageCreate', async (message) => {
-    if (message.author.bot) return;
-
-    // Initiate quiz in DMs
     if (message.channel.isDMBased() && message.content.toLowerCase() === '!quiz') {
         const userId = message.author.id;
 
@@ -460,15 +457,30 @@ client.on('messageCreate', async (message) => {
             return message.reply("You already have an active quiz!");
         }
 
-        activeQuizzes[userId] = {
-            startTime: new Date(),
-            answers: [],
-            currentQuestionIndex: 0,
-            timeout: setTimeout(() => handleQuizTimeout(userId), QUIZ_TIMEOUT * 1000)
+        // Embed with Start Quiz confirmation
+        const embed = {
+            title: `Quiz: ${quizData.name}`,
+            description: `Welcome to the quiz "${quizData.name}"! Here's how it works:\n\n` +
+                         `- The quiz consists of ${quizData.questions.length} questions.\n` +
+                         `- You have ${QUIZ_TIMEOUT} seconds to complete the quiz.\n` +
+                         `- Each question will have multiple options, and you need to select the correct one.\n\n` +
+                         `Click the "Start Quiz" button to begin!`,
+            color: 0x0099ff
         };
 
-        logQuizStart(message.author);
-        return sendNextQuestion(message.author);
+        const startButton = new ButtonBuilder()
+            .setLabel("Start Quiz")
+            .setCustomId("start_quiz")
+            .setStyle(ButtonStyle.Primary);
+
+        const waitButton = new ButtonBuilder()
+            .setLabel("Wait")
+            .setCustomId("wait_quiz")
+            .setStyle(ButtonStyle.Secondary);
+
+        const row = new ActionRowBuilder().addComponents(startButton, waitButton);
+
+        await message.reply({ embeds: [embed], components: [row] });
     }
 });
 
@@ -476,47 +488,64 @@ client.on('interactionCreate', async (interaction) => {
     if (!interaction.isButton()) return;
 
     const userId = interaction.user.id;
-    if (!activeQuizzes[userId]) {
-        return interaction.reply({ content: "You don't have an active quiz.", ephemeral: true });
+
+    // Handle quiz start confirmation
+    if (interaction.customId === "start_quiz") {
+        if (activeQuizzes[userId]) {
+            return interaction.reply({ content: "You already have an active quiz!", ephemeral: true });
+        }
+
+        activeQuizzes[userId] = {
+            startTime: new Date(),
+            answers: [],
+            currentQuestionIndex: 0,
+            timeout: setTimeout(() => handleQuizTimeout(userId), QUIZ_TIMEOUT * 1000)
+        };
+
+        logQuizStart(interaction.user);
+        await interaction.update({ content: "Starting your quiz...", components: [] });
+        return sendNextQuestion(interaction.user);
+    } else if (interaction.customId === "wait_quiz") {
+        await interaction.update({ content: "You can start the quiz anytime by sending !quiz again.", components: [] });
     }
 
-    clearTimeout(activeQuizzes[userId].timeout);
+    // Existing button interaction handling for quiz questions
+    if (activeQuizzes[userId] && interaction.customId in quizData.questions[activeQuizzes[userId].currentQuestionIndex].options) {
+        clearTimeout(activeQuizzes[userId].timeout);
 
-    const quiz = activeQuizzes[userId];
-    const answer = interaction.customId;
+        const quiz = activeQuizzes[userId];
+        const answer = interaction.customId;
 
-    // Record the answer
-    const currentQuestion = quizData.questions[quiz.currentQuestionIndex];
-    quiz.answers.push({
-        question: currentQuestion.question,
-        selected: answer
-    });
+        const currentQuestion = quizData.questions[quiz.currentQuestionIndex];
+        quiz.answers.push({
+            question: currentQuestion.question,
+            selected: answer
+        });
 
-    // Disable buttons in the current message
-    const updatedRow = new ActionRowBuilder().addComponents(
-        currentQuestion.options.map(option =>
-            new ButtonBuilder()
-                .setCustomId(option)
-                .setLabel(option)
-                .setStyle(option === answer ? ButtonStyle.Success : ButtonStyle.Secondary)
-                .setDisabled(true)
-        )
-    );
+        const updatedRow = new ActionRowBuilder().addComponents(
+            currentQuestion.options.map(option =>
+                new ButtonBuilder()
+                    .setCustomId(option)
+                    .setLabel(option)
+                    .setStyle(option === answer ? ButtonStyle.Success : ButtonStyle.Secondary)
+                    .setDisabled(true)
+            )
+        );
 
-    await interaction.update({ components: [updatedRow] });
+        await interaction.update({ components: [updatedRow] });
+        quiz.currentQuestionIndex++;
 
-    quiz.currentQuestionIndex++;
+        if (quiz.currentQuestionIndex >= quizData.questions.length) {
+            logQuizEnd(interaction.user, quiz);
+            delete activeQuizzes[userId];
+            return interaction.followUp({ content: "Thank you for completing the quiz!", ephemeral: true });
+        }
 
-    // Check if quiz is complete
-    if (quiz.currentQuestionIndex >= quizData.questions.length) {
-        logQuizEnd(interaction.user, quiz);
-        delete activeQuizzes[userId];
-        return interaction.followUp({ content: "Thank you for completing the quiz!", ephemeral: true });
+        quiz.timeout = setTimeout(() => handleQuizTimeout(userId), QUIZ_TIMEOUT * 1000);
+        sendNextQuestion(interaction.user);
     }
-
-    quiz.timeout = setTimeout(() => handleQuizTimeout(userId), QUIZ_TIMEOUT * 1000);
-    sendNextQuestion(interaction.user);
 });
+
 
 
 function sendNextQuestion(user) {
