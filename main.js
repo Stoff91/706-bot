@@ -532,20 +532,21 @@ function sendNextQuestion(user) {
 
     const row = new ActionRowBuilder().addComponents(buttons);
 
-    const content = `Question ${quiz.currentQuestionIndex + 1}: ${currentQuestion.question}`;
+    // Create the embed
+    const embed = {
+        title: `Question ${quiz.currentQuestionIndex + 1}`,
+        description: currentQuestion.question,
+        color: 0x0099ff, // You can change the color as needed
+    };
 
     if (currentQuestion.attachment) {
-        user.send({
-            content: content,
-            components: [row],
-            files: [currentQuestion.attachment]
-        });
-    } else {
-        user.send({
-            content: content,
-            components: [row]
-        });
+        embed.image = { url: currentQuestion.attachment }; // Add image URL to embed
     }
+
+    user.send({
+        embeds: [embed],
+        components: [row]
+    });
 }
 
 async function logQuizStart(user) {
