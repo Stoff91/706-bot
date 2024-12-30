@@ -570,7 +570,10 @@ client.on('interactionCreate', async (interaction) => {
             )
         );
 
-        await interaction.update({ components: [updatedRow] });
+        await interaction.update({
+            embeds: [], // Clear embed
+            components: [updatedRow]
+        });
         quiz.currentQuestionIndex++;
 
         if (quiz.currentQuestionIndex >= quizData.questions.length) {
