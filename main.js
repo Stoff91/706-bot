@@ -367,18 +367,24 @@ client.on('messageCreate', async message => {
         try {
             let fetchedMessages;
             do {
-                // Fetch up to 100 messages in the DM channel
-                fetchedMessages = await dmChannel.messages.fetch({ limit: 100 });
+                // Fetch up to 50 messages in the DM channel
+                fetchedMessages = await dmChannel.messages.fetch({ limit: 50 });
 
-                // Delete all messages in the fetched batch
+                // Iterate through fetched messages and delete them one by one
                 for (const msg of fetchedMessages.values()) {
-                    await msg.delete();
+                    if (msg.deletable) {
+                        await msg.delete().catch(err => console.error(`Failed to delete message: ${err.message}`));
+                    } else {
+                        console.warn(`Message ${msg.id} is not deletable.`);
+                    }
                 }
-            } while (fetchedMessages.size > 0); // Continue fetching until no more messages are left
+            } while (fetchedMessages.size > 0); // Continue until no more messages are left
 
-            console.log(`All messages in the DM with ${message.author.tag} have been deleted.`);
+            console.log(`All deletable messages in the DM with ${message.author.tag} have been deleted.`);
+            await dmChannel.send("All deletable messages have been cleared.");
         } catch (error) {
             console.error('Error deleting messages in DM:', error);
+            await dmChannel.send("An error occurred while trying to delete messages.");
         }
     }
 });
