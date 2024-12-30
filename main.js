@@ -519,7 +519,7 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     await interaction.update({
-        content: `<@${user.id}> chose ${emojis[userChoice]} and I chose ${emojis[botChoice]}. ${result}`,
+        content: `<@${userId}> chose ${emojis[userChoice]} and I chose ${emojis[botChoice]}. ${result}`,
         embeds: [], // Clears the embed
         components: []
     });
