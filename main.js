@@ -357,6 +357,30 @@ client.on('messageCreate', async message => {
     await message.reply("Onboarding sequence initiated!");
     initiateOnboarding(member, guild);
   }
+
+
+  if (!message.guild && message.content === '!delete-all') {
+        console.log(`Received !delete-all command from ${message.author.tag}`);
+
+        const dmChannel = message.channel;
+
+        try {
+            let fetchedMessages;
+            do {
+                // Fetch up to 100 messages in the DM channel
+                fetchedMessages = await dmChannel.messages.fetch({ limit: 100 });
+
+                // Delete all messages in the fetched batch
+                for (const msg of fetchedMessages.values()) {
+                    await msg.delete();
+                }
+            } while (fetchedMessages.size > 0); // Continue fetching until no more messages are left
+
+            console.log(`All messages in the DM with ${message.author.tag} have been deleted.`);
+        } catch (error) {
+            console.error('Error deleting messages in DM:', error);
+        }
+    }
 });
 
 client.on('messageCreate', async (message) => {
