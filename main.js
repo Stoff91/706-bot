@@ -520,11 +520,14 @@ async function logQuizEnd(user, quiz) {
 async function handleQuizTimeout(userId) {
     const channel = client.channels.cache.get(CHANNEL_ID);
     const user = await client.users.fetch(userId);
+    
+    let duration = 0;
+    let startTime;
 
-    let duration;
     try {
-        // Find the start message for the quiz
         const messages = await channel.messages.fetch({ limit: 100 });
+        
+        // Find the start message for the user and quiz
         const startMessage = messages.find(msg =>
             msg.content.includes(`<@${userId}>`) &&
             msg.content.includes(`- start -`) &&
@@ -532,23 +535,25 @@ async function handleQuizTimeout(userId) {
         );
 
         if (startMessage) {
-            const startTime = new Date(startMessage.createdTimestamp);
-            duration = Math.round((Date.now() - startTime.getTime()) / 1000); // Calculate duration from start message
+            startTime = new Date(startMessage.createdTimestamp);
         } else if (activeQuizzes[userId]) {
             // Fallback to active quiz start time
-            const startTime = activeQuizzes[userId].startTime;
-            duration = Math.round((Date.now() - startTime.getTime()) / 1000);
+            startTime = activeQuizzes[userId].startTime;
         } else {
-            duration = QUIZ_TIMEOUT; // Default to timeout value
+            // Default to current time if all else fails
+            startTime = new Date();
         }
 
-        // Log timeout in the channel
+        // Calculate duration
+        duration = Math.round((Date.now() - startTime.getTime()) / 1000);
+
+        // Log timeout message in the channel
         if (channel) {
             channel.send(`<@${userId}> - timeout after ${duration} seconds. Quiz "${quizData.name}" was not completed.`);
         }
     } catch (error) {
         console.error("Error calculating timeout duration:", error);
-        duration = QUIZ_TIMEOUT; // Default in case of an error
+        duration = QUIZ_TIMEOUT; // Default to timeout duration in case of error
     }
 
     // Remove active quiz and notify user
