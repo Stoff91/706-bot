@@ -561,16 +561,14 @@ async function handleQuizTimeout(userId) {
     let startTime;
 
     try {
-        const messages = await channel.messages.fetch({ limit: 10000 });
+        const messages = await channel.messages.fetch({ limit: 100 });
         
         // Find the start message for the user and quiz
-        const startMessage = messages.reverse().find(msg =>
-            msg.content.includes(userId) &&
+        const startMessage = messages.find(msg =>
+            msg.content.includes(`<@${userId}>`) &&
             msg.content.includes(`- start -`) &&
             msg.content.includes(quizData.name)
         );
-
-        console.log(startMessage);
 
         if (startMessage) {
             startTime = new Date(startMessage.createdTimestamp);
