@@ -117,15 +117,15 @@ const quizData = {
         ,
         {
             question: "Which country is the best in scandinavia?",
-            options: ["Sweden", "Sweden 2", "Sweden 3"],
+            options: ["Sweden"],
             correct: "Sweden",
             attachment: null
         }
         ,
         {
             question: "Whom does this hand belong to?",
-            options: ["Hypocritical", "Idlehands", "OG90"],
-            correct: "Hypocritical",
+            options: ["Hypocriticat", "Idlehands", "OG90"],
+            correct: "Hypocriticat",
             attachment: "https://lkpgmuaythai.se/public/img/image_14.png"
         }
     ]
