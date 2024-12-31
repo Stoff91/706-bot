@@ -16,7 +16,7 @@ const client = new Client({
 let unsetServer; // Declare variables outside
 let unsetAlliance;
 const CHANNEL_ID = '1323289983246925885'; // Replace with your channel ID
-const QUIZ_TIMEOUT = 60; // Timeout in seconds (1 hour)
+const QUIZ_TIMEOUT = 600; // Timeout in seconds 
 
 const quizData = {
     name: "New Years Quiz 2024",
@@ -112,20 +112,6 @@ const quizData = {
             question: "Who is known as the HOARDLORD of HvC?",
             options: ["ICE CARMINE", "Hardnips69", "Kamaz"],
             correct: "Kamaz",
-            attachment: null
-        }
-        ,
-        {
-            question: "Who is known as the HOARDLORD of HvC?",
-            options: ["ICE CARMINE", "Hardnips69", "Kamaz"],
-            correct: "Kamaz",
-            attachment: null
-        }
-        ,
-        {
-            question: "Which country is the best in scandinavia?",
-            options: ["Sweden", "Sweden", "Sweden"],
-            correct: "Sweden",
             attachment: null
         }
         ,
