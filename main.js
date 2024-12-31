@@ -100,6 +100,48 @@ const quizData = {
             correct: "Kaan",
             attachment: "https://lkpgmuaythai.se/public/img/image_9.png"
         }
+         ,
+        {
+            question: "What kind of business does our very own Xiao have?",
+            options: ["IT Company", "Chopstick Factory", "Restaurant"],
+            correct: "Restaurant",
+            attachment: null
+        }
+        ,
+        {
+            question: "Who is known as the HOARDLORD of HvC?",
+            options: ["ICE CARMINE", "Hardnips69", "Kamaz"],
+            correct: "Kamaz",
+            attachment: null
+        }
+        ,
+        {
+            question: "Who is known as the HOARDLORD of HvC?",
+            options: ["ICE CARMINE", "Hardnips69", "Kamaz"],
+            correct: "Kamaz",
+            attachment: null
+        }
+        ,
+        {
+            question: "Which country is the best in scandinavia?",
+            options: ["Sweden", "Sweden", "Sweden"],
+            correct: "Sweden",
+            attachment: null
+        }
+        ,
+        {
+            question: "Which country is the best in scandinavia?",
+            options: ["Sweden", "Sweden", "Sweden"],
+            correct: "Sweden",
+            attachment: null
+        }
+        ,
+        {
+            question: "Whom does this hand belong to?",
+            options: ["Hypocritical", "Idlehands", "OG90"],
+            correct: "Hypocritical",
+            attachment: "https://lkpgmuaythai.se/public/img/image_14.png"
+        }
     ]
 };
 
