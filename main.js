@@ -128,6 +128,27 @@ const quizData = {
             correct: "Hypocriticat",
             attachment: "https://lkpgmuaythai.se/public/img/image_14.png"
         }
+        ,
+        {
+            question: "This specific player is from AUSTRIA. You heard that right. No ALIA. Which person is it on the photo?",
+            options: ["Texdaddy", "Stedders", "crapoutou"],
+            correct: "Texdaddy",
+            attachment: "https://lkpgmuaythai.se/public/img/image_15.png"
+        }
+        ,
+        {
+            question: "We have our own private seller of 8balls. Whom is it in this picture?",
+            options: ["Gavpimmy", "Lato", "Stedders"],
+            correct: "Gavpimmy",
+            attachment: "https://lkpgmuaythai.se/public/img/image_16.png"
+        }
+        ,
+        {
+            question: "I don't know why, but you just don't like it when some people get angry. Whom is it in this picture?",
+            options: ["Grimm", "hulken3d", "CrimsonSpecter"],
+            correct: "hulken3d",
+            attachment: "https://lkpgmuaythai.se/public/img/image_17.png"
+        }
     ]
 };
 
