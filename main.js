@@ -771,7 +771,12 @@ async function handleQuizTimeout(userId) {
         console.error(`Failed to notify user ${userId} of timeout:`, error);
     }
 
+    } catch (error) {
+        console.error(`Random error...:`, error);
+    }
+
     // Clean up active quiz
     delete activeQuizzes[userId];
+  }
 
 client.login(process.env.BOT_TOKEN);
