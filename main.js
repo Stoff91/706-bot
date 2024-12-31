@@ -773,15 +773,5 @@ async function handleQuizTimeout(userId) {
 
     // Clean up active quiz
     delete activeQuizzes[userId];
-}
-    } catch (error) {
-        console.error("Error calculating timeout duration:", error);
-        duration = 999; // Default to timeout duration in case of error
-    }
-
-    // Remove active quiz and notify user
-    delete activeQuizzes[userId];
-    user.send("Your quiz session has timed out. Please reinitialize the quiz by writing !quiz.");
-}
 
 client.login(process.env.BOT_TOKEN);
