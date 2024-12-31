@@ -149,6 +149,20 @@ const quizData = {
             correct: "hulken3d",
             attachment: "https://lkpgmuaythai.se/public/img/image_17.png"
         }
+        ,
+        {
+            question: "Our very own canadian - Whom is it in this picture?",
+            options: ["Softnips", "ColdAs1ce", "NoraPure"],
+            correct: "Softnips",
+            attachment: "https://lkpgmuaythai.se/public/img/image_18.png"
+        }
+        ,
+        {
+            question: "The man, the myth the legend - the being of many languages - Whom is it in this picture?",
+            options: ["Veps", "Podz", "Panco"],
+            correct: "Panco",
+            attachment: "https://lkpgmuaythai.se/public/img/image_19.png"
+        }
     ]
 };
 
