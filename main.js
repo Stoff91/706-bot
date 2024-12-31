@@ -117,7 +117,7 @@ const quizData = {
         ,
         {
             question: "Which country is the best in scandinavia?",
-            options: ["Sweden", "Sweden", "Sweden"],
+            options: ["Sweden", "Sweden 2", "Sweden 3"],
             correct: "Sweden",
             attachment: null
         }
