@@ -19,19 +19,51 @@ const CHANNEL_ID = '1323289983246925885'; // Replace with your channel ID
 const QUIZ_TIMEOUT = 60; // Timeout in seconds (1 hour)
 
 const quizData = {
-    name: "Test Quiz",
+    name: "New Years Quiz 2024",
     questions: [
         {
-            question: "What is the capital of France?",
-            options: ["Berlin", "Paris", "Madrid"],
-            correct: "Paris",
-            attachment: "https://as1.ftcdn.net/v2/jpg/01/13/45/30/1000_F_113453008_oy6351w1GARbsyIDggn71Wuquduj5m6j.jpg" // Attachment URL
+            question: "CEST is an abbreviation that a lot of people use daily during summertime. One person in particular hates the use of this, and strikes people down when they say IN CEST. Whom?",
+            options: ["Sweettears", "Idlehands", "Putin"],
+            correct: "Idlehands",
+            attachment: "https://sv.thetimenow.com/img/coordinated_universal_time.jpg" // Attachment URL
         },
         {
-            question: "What is 2 + 2?",
-            options: ["3", "4", "5"],
-            correct: "4",
+            question: "Abbi, queen of the R4's, sometimes sends a thumbs up, or a simple 'ok'. What does this mean?",
+            options: ["Ok", "Okay", "Fuck off"],
+            correct: "Fuck off",
             attachment: null // No attachment
+        },
+        {
+            question: "Whom does this foot belong to?",
+            options: ["Pootang", "Del", "Hulken"],
+            correct: "Pootang",
+            attachment: "https://lkpgmuaythai.se/public/img/image_3.png" // Attachment URL
+        },
+        {
+            question: "Nirvana once took a pretty awesome cover photo, and this picture was taken as a nod to that. Which HvC member is this?",
+            options: ["Texdaddy", "Panco", "Runka"],
+            correct: "Runka",
+            attachment: "https://lkpgmuaythai.se/public/img/image_4.jpg" // Attachment URL
+        },
+        {
+            question: "WELCOME TO THE CUMZONE - who is the famous player of this discord sound?",
+            options: ["Grimm", "Astral", "Loco"],
+            correct: "Astral",
+            attachment: null // No attachment
+        }
+        ,
+        {
+            question: "This person grew up to be a player in server 706. Whom does the face belong to?",
+            options: ["Del", "Lilwayne420", "Abbi"],
+            correct: "Abbi",
+            attachment: "https://lkpgmuaythai.se/public/img/image_6.png"
+        }
+        ,
+        {
+            question: "A few months ago, after a alcohol related event - someone gave everyone on discord a tour of the room he stayed in. What person did this?",
+            options: ["Dreadblade", "Sweettears", "Ebeny"],
+            correct: "Sweettears",
+            attachment: "https://lkpgmuaythai.se/public/img/image_7.png"
         }
     ]
 };
@@ -751,7 +783,7 @@ async function handleQuizTimeout(userId) {
         // Update the embed to indicate timeout and remove the image if any
         const updatedEmbed = {
             title: `Question ${quiz.currentQuestionIndex + 1}`,
-            description: `${currentQuestion.question}\n\nTime's up! You did not answer in time.`,
+            description: `${currentQuestion.question}\n\nTime's up! You did not answer in time. Reinitialize the quiz by writing !quiz.`,
             color: 0xff0000 // Red to indicate timeout
         };
 
