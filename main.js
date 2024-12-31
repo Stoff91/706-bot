@@ -65,6 +65,41 @@ const quizData = {
             correct: "Sweettears",
             attachment: "https://lkpgmuaythai.se/public/img/image_7.png"
         }
+        ,
+        {
+            question: "What player in HvC once stated how he was so good at never mentioning his name online, so none would ever find him. Only to have his last name repeated to him in AC 20 seconds later?",
+            options: ["Scott", "Harige", "Panco"],
+            correct: "Panco",
+            attachment: null
+        }
+        ,
+        {
+            question: "What player in the below list is the most tech-retarded?",
+            options: ["Tysonator", "Bark", "Astral"],
+            correct: "Bark",
+            attachment: null
+        }
+        ,
+        {
+            question: "What player in HvC appeared in Harry Potter?",
+            options: ["Abbi", "Junior", "Del"],
+            correct: "Del",
+            attachment: null
+        }
+        ,
+        {
+            question: "This image was made during a day of VS against another alliance. Which one? *Hint - They smell like pigs and you can hear a distant screech of haram*",
+            options: ["7RD", "ITP", "GMM"],
+            correct: "GMM",
+            attachment:  "https://lkpgmuaythai.se/public/img/image_10.png"
+        }
+        ,
+        {
+            question: "Whom does this mouth belong to?",
+            options: ["Junior", "Pootang", "Kaan"],
+            correct: "Kaan",
+            attachment: "https://lkpgmuaythai.se/public/img/image_9.png"
+        }
     ]
 };
 
