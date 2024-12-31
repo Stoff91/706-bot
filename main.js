@@ -732,38 +732,48 @@ async function handleQuizTimeout(userId) {
             channel.send(`<@${userId}> - timeout after ${duration} seconds. Quiz "${quizData.name}" was not completed.`);
         }
 
-        // Disable the buttons
         if (!activeQuizzes[userId]) return;
 
-          const quiz = activeQuizzes[userId];
-          const currentQuestion = quizData.questions[quiz.currentQuestionIndex];
+        const quiz = activeQuizzes[userId];
+        const currentQuestion = quizData.questions[quiz.currentQuestionIndex];
 
-          const disabledRow = new ActionRowBuilder().addComponents(
-              currentQuestion.options.map(option =>
-                  new ButtonBuilder()
-                      .setCustomId(option)
-                      .setLabel(option)
-                      .setStyle(ButtonStyle.Secondary)
-                      .setDisabled(true)
-              )
-          );
+        // Create a disabled button row
+        const disabledRow = new ActionRowBuilder().addComponents(
+            currentQuestion.options.map(option =>
+                new ButtonBuilder()
+                    .setCustomId(option)
+                    .setLabel(option)
+                    .setStyle(ButtonStyle.Secondary)
+                    .setDisabled(true)
+            )
+        );
 
-          const updatedEmbed = {
-              title: `Question ${quiz.currentQuestionIndex + 1}`,
-              description: currentQuestion.question,
-              color: 0x0099ff
-          };
+        // Update the embed to indicate timeout and remove the image if any
+        const updatedEmbed = {
+            title: `Question ${quiz.currentQuestionIndex + 1}`,
+            description: `${currentQuestion.question}\n\nTime's up! You did not answer in time.`,
+            color: 0xff0000 // Red to indicate timeout
+        };
 
-          if (currentQuestion.attachment) {
-              updatedEmbed.image = null;
-          }
+        if (currentQuestion.attachment) {
+            updatedEmbed.image = null;
+        }
 
-          const channel = await client.users.fetch(userId);
-          await channel.send({
-              content: "Time's up! You did not answer in time.",
-              embeds: [updatedEmbed],
-              components: [disabledRow]
-          });
+        try {
+            // Fetch the user and send the timeout message
+            const user = await client.users.fetch(userId);
+            await user.send({
+                content: "Time's up!",
+                embeds: [updatedEmbed],
+                components: [disabledRow]
+        });
+    } catch (error) {
+        console.error(`Failed to notify user ${userId} of timeout:`, error);
+    }
+
+    // Clean up active quiz
+    delete activeQuizzes[userId];
+}
     } catch (error) {
         console.error("Error calculating timeout duration:", error);
         duration = 999; // Default to timeout duration in case of error
