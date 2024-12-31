@@ -731,6 +731,39 @@ async function handleQuizTimeout(userId) {
         if (channel) {
             channel.send(`<@${userId}> - timeout after ${duration} seconds. Quiz "${quizData.name}" was not completed.`);
         }
+
+        // Disable the buttons
+        if (!activeQuizzes[userId]) return;
+
+          const quiz = activeQuizzes[userId];
+          const currentQuestion = quizData.questions[quiz.currentQuestionIndex];
+
+          const disabledRow = new ActionRowBuilder().addComponents(
+              currentQuestion.options.map(option =>
+                  new ButtonBuilder()
+                      .setCustomId(option)
+                      .setLabel(option)
+                      .setStyle(ButtonStyle.Secondary)
+                      .setDisabled(true)
+              )
+          );
+
+          const updatedEmbed = {
+              title: `Question ${quiz.currentQuestionIndex + 1}`,
+              description: currentQuestion.question,
+              color: 0x0099ff
+          };
+
+          if (currentQuestion.attachment) {
+              updatedEmbed.image = null;
+          }
+
+          const channel = await client.users.fetch(userId);
+          await channel.send({
+              content: "Time's up! You did not answer in time.",
+              embeds: [updatedEmbed],
+              components: [disabledRow]
+          });
     } catch (error) {
         console.error("Error calculating timeout duration:", error);
         duration = 999; // Default to timeout duration in case of error
