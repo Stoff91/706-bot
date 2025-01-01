@@ -1167,7 +1167,7 @@ Dealer's hand: ${dealerHandDisplay} (Value: ${dealerHandValue})
 
 
     // If the command is "message"
-    if (command === '!message') {
+    if (command === 'message') {
         // Ensure proper arguments are provided
         if (args.length < 2) {
             return message.reply('Usage: !message <channelId> <message>');
