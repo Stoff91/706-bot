@@ -490,8 +490,26 @@ client.on('messageCreate', async message => {
     initiateOnboarding(member, guild);
   }
 
+  if (message.content.startsWith('!whohasaccess')) {
+    const args = message.content.split(' ');
+    const channelId = args[1]; // The channel ID is passed as a second argument
+
+    if (!channelId) {
+      return message.reply('Please provide a channel ID.');
+    }
+
+    const membersWithAccess = await getUsersWithChannelAccess(channelId, message.guild.id);
+
+    if (membersWithAccess.length === 0) {
+      return message.reply('No members have access to this channel.');
+    }
+
+    message.reply(`Users with access to <#${channelId}>:\n${membersWithAccess.join('\n')}`);
+  }
+
 
   if (!message.guild && message.content === '!delete-all') {
+      //this one needs to be manually killed.
         console.log(`Received !delete-all command from ${message.author.tag}`);
 
         const dmChannel = message.channel;
@@ -908,5 +926,44 @@ async function handleQuizTimeout(userId) {
     // Clean up active quiz
     delete activeQuizzes[userId];
   }
+
+
+
+
+
+
+async function getUsersWithChannelAccess(channelId, guildId) {
+  try {
+    const guild = await client.guilds.fetch(guildId);
+    const channel = await guild.channels.fetch(channelId);
+
+    if (!channel) {
+      throw new Error("Channel not found");
+    }
+
+    const membersWithAccess = [];
+
+    guild.members.cache.forEach((member) => {
+      // Check if the member has permission to view the channel
+      if (channel.permissionsFor(member).has('ViewChannel')) {
+        membersWithAccess.push(member.user.tag);
+      }
+    });
+
+    return membersWithAccess;
+  } catch (error) {
+    console.error('Error fetching users with access:', error);
+    return [];
+  }
+}
+
+
+
+
+
+
+
+
+
 
 client.login(process.env.BOT_TOKEN);
