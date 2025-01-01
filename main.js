@@ -1167,13 +1167,13 @@ Dealer's hand: ${dealerHandDisplay} (Value: ${dealerHandValue})
 
 
     // Declare args and command only once
-    let args = message.content.trim().split(/\s+/);
-    const command = args.shift().toLowerCase();
+    let argss = message.content.trim().split(/\s+/);
+    const command = argss.shift().toLowerCase();
 
     // If the command is "message"
     if (command === '!message') {
         // Ensure proper arguments are provided
-        if (args.length < 2) {
+        if (argss.length < 2) {
             return message.reply('Usage: !message <channelId> <message>');
         }
 
@@ -1183,8 +1183,8 @@ Dealer's hand: ${dealerHandDisplay} (Value: ${dealerHandValue})
             return message.reply('You do not have permission to use this command. Only the server owner can use it.');
         }
 
-        const channelId = args.shift(); // Extract the channel ID
-        const channelMessage = args.join(' '); // Combine the rest into the message
+        const channelId = argss.shift(); // Extract the channel ID
+        const channelMessage = argss.join(' '); // Combine the rest into the message
 
         try {
             // Fetch the channel by ID
