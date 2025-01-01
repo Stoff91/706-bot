@@ -1163,6 +1163,45 @@ Dealer's hand: ${dealerHandDisplay} (Value: ${dealerHandValue})
             );
         }
     }
+
+
+    // Split the message into command and arguments
+    const args = message.content.trim().split(/\s+/);
+    const command = args.shift().toLowerCase();
+
+    // If the command is "message"
+    if (command === '!message') {
+        // Ensure proper arguments are provided
+        if (args.length < 2) {
+            return message.reply('Usage: !message <channelId> <message>');
+        }
+
+        // Check if the message author is the server owner
+        const guild = message.guild;
+        if (!guild || message.author.id !== guild.ownerId) {
+            return message.reply('You do not have permission to use this command. Only the server owner can use it.');
+        }
+
+        const channelId = args.shift(); // Extract the channel ID
+        const channelMessage = args.join(' '); // Combine the rest into the message
+
+        try {
+            // Fetch the channel by ID
+            const channel = await client.channels.fetch(channelId);
+
+            // Ensure the channel is a text-based channel
+            if (!channel || !channel.isTextBased()) {
+                return message.reply('Invalid channel ID or channel is not a text-based channel.');
+            }
+
+            // Send the message to the channel
+            await channel.send(channelMessage);
+            message.reply(`Message sent to channel: ${channelId}`);
+        } catch (error) {
+            console.error(error);
+            message.reply('An error occurred. Ensure the bot has access to the channel and the ID is correct.');
+        }
+    }
 });
 
 
