@@ -1,6 +1,6 @@
 require('dotenv').config();
 // Import the discord.js library
-const { Client, IntentsBitField, Partials, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { Client, IntentsBitField, Partials, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
 const client = new Client({
   intents: [
@@ -217,14 +217,25 @@ function sortButtonsAlphabetically(buttons) {
 async function initiateOnboarding(member, guild) {
   let dmChannel;
   try {
-    dmChannel = await member.createDM().catch(() => {
-      throw new Error("Unable to create a DM channel with the user.");
-    });
 
-    await dmChannel.send(
-      "Welcome to Server #706! Please follow the instructions to set your nickname and enjoy your stay. " +
-      "(This is currently in dev, if this message is here, know that the bot can fail. Simply restart the onboarding with !onboard. Real men test in prod.)"
-    );
+    // Create a DM channel with the member
+    const dmChannel = await member.createDM();
+
+    // Create the embed message
+    const welcomeEmbed = new EmbedBuilder()
+      .setColor('#00FFAA') // Set a cool color for the embed
+      .setTitle('🌟 Welcome to Server #706! 🌟')
+      .setDescription(
+        "👋 We're thrilled to have you here! Please follow the onboarding instructions to set your nickname and dive into the fun. 🛠️\n\n" +
+        "⚠️ **Heads up!** This feature is currently in development, so things might not be perfect. If you encounter any hiccups, just restart the onboarding process by typing `!onboard`.\n\n" +
+        "🚀 *Remember, real heroes test in production!* 💪"
+      )
+      .setFooter({ text: 'Enjoy your stay!', iconURL: 'https://www.pockettactics.com/wp-content/sites/pockettactics/2024/10/Last-War-codes-1.jpg' }) // Optional: Add a footer icon
+      .setTimestamp(); // Adds a timestamp
+
+    // Send the embed in the DM channel
+    await dmChannel.send({ embeds: [welcomeEmbed] });
+
 
     // Step 1: Ask for the server role
     const serverRoles = getRolesWithPrefix(guild, "Srv: ");
