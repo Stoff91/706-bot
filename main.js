@@ -1165,8 +1165,9 @@ Dealer's hand: ${dealerHandDisplay} (Value: ${dealerHandValue})
     }
 
 
-    // Split the message into command and arguments
-    const args = message.content.trim().split(/\s+/);
+
+    // Declare args and command only once
+    let args = message.content.trim().split(/\s+/);
     const command = args.shift().toLowerCase();
 
     // If the command is "message"
