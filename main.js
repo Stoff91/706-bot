@@ -1141,6 +1141,9 @@ Type \`!hit\` to draw another card or \`!stay\` to end your turn.`
         delete gameState[message.author.id];
 
         if (dealerHandValue > 21 || playerHandValue > dealerHandValue) {
+          if (game.timeout) {
+            clearTimeout(game.timeout);
+        }
             return message.reply(
                 `Your hand: ${displayHand(game.playerHand)} (Value: ${playerHandValue})
 Dealer's hand: ${dealerHandDisplay} (Value: ${dealerHandValue})
