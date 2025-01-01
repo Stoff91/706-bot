@@ -521,7 +521,12 @@ client.on('messageCreate', async message => {
       return message.reply('Please provide a channel ID.');
     }
 
-    const membersWithAccess = await getUsersWithChannelAccess(channelId, message.guild.id);
+    const beforeFilter = await getUsersWithChannelAccess(channelId, message.guild.id);
+
+        // Filter out members with the "Admin" role
+    const membersWithAccess = beforeFilter.filter(
+      member => !member.roles.cache.has('1310174590449877053') // Exclude members with the Admin role
+    );
 
     if (membersWithAccess.length === 0) {
       return message.reply('No members have access to this channel.');
