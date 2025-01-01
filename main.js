@@ -527,11 +527,11 @@ client.on('messageCreate', async message => {
       return message.reply('No members have access to this channel.');
     }
 
-       // Format the message with mentions and IDs
+    // Format the message with mentions and IDs
     const mentions = membersWithAccess.map(member => `<@${member.id}> (ID: ${member.id})`).join('\n');
 
     // Send the message in the channel
-    message.reply(
+    await message.reply(
       `Users with access to <#${channelId}>:\n${mentions}\n\nHELLO to everyone listed above! 🎉`
     );
 
@@ -541,7 +541,7 @@ client.on('messageCreate', async message => {
         await member.send(`HELLO, <@${member.id}>! You have access to the channel <#${channelId}>. 🎉`);
         console.log(`DM sent to ${member.user.tag}`);
       } catch (error) {
-        console.error(`Failed to send DM to ${member.user.tag}:`, error);
+        console.error(`Failed to send DM to ${member.user.tag || member.id}:`, error);
       }
     }
   }
@@ -980,25 +980,23 @@ async function getUsersWithChannelAccess(channelId, guildId) {
       throw new Error("Channel not found");
     }
 
-    // Fetch all members
+    // Fetch all members to ensure they're cached
     await guild.members.fetch();
 
     const membersWithAccess = [];
 
     guild.members.cache.forEach((member) => {
-      // Check if the member has permission to view the channel
       if (channel.permissionsFor(member).has('ViewChannel')) {
-        membersWithAccess.push(member.user.tag);
+        membersWithAccess.push(member); // Push full member objects
       }
     });
 
     return membersWithAccess;
   } catch (error) {
-    console.error('Error fetching users with access:', error);
+    console.error("Error fetching users with access:", error);
     return [];
   }
 }
-
 
 
 
