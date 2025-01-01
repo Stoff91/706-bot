@@ -941,6 +941,9 @@ async function getUsersWithChannelAccess(channelId, guildId) {
       throw new Error("Channel not found");
     }
 
+    // Fetch all members
+    await guild.members.fetch();
+
     const membersWithAccess = [];
 
     guild.members.cache.forEach((member) => {
