@@ -527,7 +527,23 @@ client.on('messageCreate', async message => {
       return message.reply('No members have access to this channel.');
     }
 
-    message.reply(`Users with access to <#${channelId}>:\n${membersWithAccess.join('\n')}`);
+       // Format the message with mentions and IDs
+    const mentions = membersWithAccess.map(member => `<@${member.id}> (ID: ${member.id})`).join('\n');
+
+    // Send the message in the channel
+    message.reply(
+      `Users with access to <#${channelId}>:\n${mentions}\n\nHELLO to everyone listed above! 🎉`
+    );
+
+    // Send a DM to each member
+    for (const member of membersWithAccess) {
+      try {
+        await member.send(`HELLO, <@${member.id}>! You have access to the channel <#${channelId}>. 🎉`);
+        console.log(`DM sent to ${member.user.tag}`);
+      } catch (error) {
+        console.error(`Failed to send DM to ${member.user.tag}:`, error);
+      }
+    }
   }
 
 
