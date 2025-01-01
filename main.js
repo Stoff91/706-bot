@@ -223,7 +223,7 @@ async function initiateOnboarding(member, guild) {
 
     await dmChannel.send(
       "Welcome to Server #706! Please follow the instructions to set your nickname and enjoy your stay. " +
-      "(This is currently in dev, if this message is here - disregard the instructions. Real men test in prod.)"
+      "(This is currently in dev, if this message is here, know that the bot can fail. Simply restart the onboarding with !onboard. Real men test in prod.)"
     );
 
     // Step 1: Ask for the server role
@@ -464,6 +464,18 @@ client.on('messageCreate', (message) => {
 
 client.on('guildMemberAdd', async member => {
   initiateOnboarding(member, member.guild);
+  try {
+  const channel = await member.guild.channels.fetch('1310174085036118027');
+    if (channel && channel.isTextBased()) {
+      await channel.send(
+        `Welcome <@${member.id}> to the server! 🎉 Please check your DM conversation with the bot to complete onboarding. If the onboarding process hasn't started, send \`!onboard\` to the bot to begin.`
+      );
+    } else {
+      console.error("Channel not found or not text-based.");
+    }
+  } catch (error) {
+    console.error("Failed to handle guild member add:", error);
+  }
 });
 
 client.on('messageCreate', async message => {
