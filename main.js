@@ -1011,4 +1011,158 @@ async function getUsersWithChannelAccess(channelId, guildId) {
 
 
 
+
+
+
+
+
+let gameState = {};
+
+// Function to draw a card
+function drawCard() {
+    const suits = ['♠', '♥', '♦', '♣'];
+    const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+    const value = values[Math.floor(Math.random() * values.length)];
+    const suit = suits[Math.floor(Math.random() * suits.length)];
+    return { value, suit };
+}
+
+// Function to calculate hand value
+function calculateHandValue(hand) {
+    let value = 0;
+    let aces = 0;
+
+    for (const card of hand) {
+        if (['J', 'Q', 'K'].includes(card.value)) {
+            value += 10;
+        } else if (card.value === 'A') {
+            value += 11;
+            aces += 1;
+        } else {
+            value += parseInt(card.value, 10);
+        }
+    }
+
+    // Adjust for aces
+    while (value > 21 && aces > 0) {
+        value -= 10;
+        aces -= 1;
+    }
+
+    return value;
+}
+
+// Function to display a hand
+function displayHand(hand) {
+    return hand.map(card => `${card.value}${card.suit}`).join(', ');
+}
+
+// Start the Blackjack game
+client.on('messageCreate', async (message) => {
+    if (message.author.bot || !message.content.startsWith('!')) return;
+
+    const args = message.content.slice(1).trim().split(/ +/);
+    const command = args.shift().toLowerCase();
+
+    if (command === 'blackjack') {
+        if (gameState[message.author.id]) {
+    return message.reply(
+        `You are already in a game! Finish it before starting a new one. Type \`!hit\` to draw another card or \`!stay\` to finish your turn.`
+    );
+    }
+    
+    const playerHand = [drawCard(), drawCard()];
+    const dealerHand = [drawCard(), drawCard()];
+    
+    const timeout = setTimeout(() => {
+        delete gameState[message.author.id];
+        message.channel.send(
+            `<@${message.author.id}>, your game has been canceled due to inactivity. Start a new game with \`!blackjack\`.`
+        );
+    }, 120000); // 2 minutes
+    
+    gameState[message.author.id] = {
+        playerHand,
+        dealerHand,
+        inProgress: true,
+        timeout,
+    };
+
+        const playerHandValue = calculateHandValue(playerHand);
+        message.reply(
+            `Your hand: ${displayHand(playerHand)} (Value: ${playerHandValue})
+Dealer's visible card: ${dealerHand[0].value}${dealerHand[0].suit}
+Type \`!hit\` to draw another card or \`!stay\` to end your turn.`
+        );
+    }
+
+    if (command === 'hit') {
+        const game = gameState[message.author.id];
+        if (!game || !game.inProgress) {
+            return message.reply('You are not in a game! Start a new one with `!blackjack`.');
+        }
+
+        const newCard = drawCard();
+        game.playerHand.push(newCard);
+        const playerHandValue = calculateHandValue(game.playerHand);
+
+        if (playerHandValue > 21) {
+            delete gameState[message.author.id];
+            return message.reply(
+                `You drew ${newCard.value}${newCard.suit}.
+Your hand: ${displayHand(game.playerHand)} (Value: ${playerHandValue})
+**BUSTED!** You lose.`
+            );
+        }
+
+        message.reply(
+            `You drew ${newCard.value}${newCard.suit}.
+Your hand: ${displayHand(game.playerHand)} (Value: ${playerHandValue})
+Type \`!hit\` to draw another card or \`!stay\` to end your turn.`
+        );
+    }
+
+    if (command === 'stay') {
+        const game = gameState[message.author.id];
+        if (!game || !game.inProgress) {
+            return message.reply('You are not in a game! Start a new one with `!blackjack`.');
+        }
+
+        const playerHandValue = calculateHandValue(game.playerHand);
+        let dealerHandValue = calculateHandValue(game.dealerHand);
+
+        // Dealer's turn: hit until value >= 17
+        while (dealerHandValue < 17) {
+            game.dealerHand.push(drawCard());
+            dealerHandValue = calculateHandValue(game.dealerHand);
+        }
+
+        const dealerHandDisplay = displayHand(game.dealerHand);
+        delete gameState[message.author.id];
+
+        if (dealerHandValue > 21 || playerHandValue > dealerHandValue) {
+            return message.reply(
+                `Your hand: ${displayHand(game.playerHand)} (Value: ${playerHandValue})
+Dealer's hand: ${dealerHandDisplay} (Value: ${dealerHandValue})
+**You win!** 🎉`
+            );
+        } else if (playerHandValue === dealerHandValue) {
+            return message.reply(
+                `Your hand: ${displayHand(game.playerHand)} (Value: ${playerHandValue})
+Dealer's hand: ${dealerHandDisplay} (Value: ${dealerHandValue})
+**It's a tie!**`
+            );
+        } else {
+            return message.reply(
+                `Your hand: ${displayHand(game.playerHand)} (Value: ${playerHandValue})
+Dealer's hand: ${dealerHandDisplay} (Value: ${dealerHandValue})
+**You lose!** 😢`
+            );
+        }
+    }
+});
+
+
+
+
 client.login(process.env.BOT_TOKEN);
