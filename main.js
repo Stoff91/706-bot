@@ -616,9 +616,7 @@ client.on('messageCreate', async message => {
     //TRANSLATE SECTION
     if (message.author.bot || message.channel.id !== '1325950212086300804') return;
 
-        try {
-        console.log('Attempting translation for:', message.content); // Log the input content
-
+    try {
         const response = await translate(message.content, {
             to: 'en',
             fetchOptions: { agent: null }, // Adjust or configure as necessary
@@ -626,15 +624,14 @@ client.on('messageCreate', async message => {
 
         console.log('Translation response:', JSON.stringify(response, null, 2)); // Log the entire response object
 
-        const { text, src } = response;
+        // Determine the source language
+        const srcLanguage = response.raw?.ld_result?.srclangs?.[0] || response.raw?.ld_result?.extended_srclangs?.[0] || 'unknown';
 
-        // Debug the extracted fields
-        console.log(`Detected language: ${src}`);
-        console.log(`Translated text: ${text}`);
+        console.log(`Detected source language: ${srcLanguage}`);
 
         // If the detected language is not English, reply with translation to English
-        if (src !== 'en') {
-            await message.reply(`Translated to English: ${text}`);
+        if (srcLanguage !== 'en') {
+            await message.reply(`Translated to English: ${response.text}`);
         } else {
             // If the message is already in English, translate to French
             const frenchResponse = await translate(message.content, {
@@ -655,7 +652,6 @@ client.on('messageCreate', async message => {
         await message.react('😢'); // Add a crying reaction if translation fails
     }
 });
-
 
 client.on('messageCreate', async (message) => {
     // Check if the message content is "!delete-bot" and the author is the server owner
