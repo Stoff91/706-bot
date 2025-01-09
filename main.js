@@ -1,7 +1,7 @@
 require('dotenv').config();
 // Import the discord.js library
 const { Client, IntentsBitField, Partials, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const translate = require('google-translate-api'); // Install with: npm install google-translate-api
+const translate = require('@vitalets/google-translate-api'); // Updated library
 
 
 const client = new Client({
@@ -631,6 +631,7 @@ client.on('messageCreate', async message => {
         }
     } catch (error) {
         console.error('Translation error:', error);
+        await message.reply('An error occurred during translation. Please try again later.');
     }
 });
 
