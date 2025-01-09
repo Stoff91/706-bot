@@ -647,12 +647,8 @@ client.on('messageCreate', async message => {
             // If the source language is not English, translate to English
             await message.reply(`Translated to English: ${translatedText}`);
         } else {
-            // If the source language is English, translate to French
-            const frenchResponse = await translateMessage(translatedText);
-            const frenchText = frenchResponse.translatedText;
-
-            console.log('Translated to French:', frenchText);
-            await message.reply(`Translated to French: ${frenchText}`);
+             // If the source language is not English, translate to English
+            await message.reply(`Translated to French: ${translatedText}`);
         }
     } catch (error) {
         console.error('Translation error:', error);
