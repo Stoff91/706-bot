@@ -195,6 +195,7 @@ client.once("ready", async () => {
     } catch (error) {
         console.error("Failed to send DM to user 189751471376564228:", error);
     }
+    console.log(translate);
 });
 
 function getRolesWithPrefix(guild, prefix) {
@@ -631,7 +632,6 @@ client.on('messageCreate', async message => {
         }
     } catch (error) {
         console.error('Translation error:', error);
-        await message.reply('An error occurred during translation. Please try again later.');
     }
 });
 
