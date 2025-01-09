@@ -616,24 +616,31 @@ client.on('messageCreate', async message => {
     //TRANSLATE SECTION
     if (message.author.bot || message.channel.id !== '1325950212086300804') return;
 
+    client.on('messageCreate', async (message) => {
+    // Ignore bot messages and messages outside the specified channel
+    if (message.author.bot || message.channel.id !== CHANNEL_TRANSLATE_ID) return;
+
     try {
         const detection = await translate(message.content, { to: 'en' });
-        const detectedLanguage = detection.from.language.iso;
+        const detectedLanguage = detection.src; // Extract the detected source language
 
         // If the message is not in English, translate it to English
         if (detectedLanguage !== 'en') {
-            const result = await translate(message.content, { to: 'en' });
-            await message.reply(`Translated to English: ${result.text}`);
+            const translatedText = detection.sentences.map(sentence => sentence.trans).join(' ');
+            await message.reply(`Translated to English: ${translatedText}`);
         } 
         // If the message is in English, translate it to French
         else {
             const result = await translate(message.content, { to: 'fr' });
-            await message.reply(`Translated to French: ${result.text}`);
+            const translatedText = result.sentences.map(sentence => sentence.trans).join(' ');
+            await message.reply(`Translated to French: ${translatedText}`);
         }
     } catch (error) {
         console.error('Translation error:', error);
+        await message.react('😢'); // Add a crying reaction if translation fails
     }
 });
+
 
 client.on('messageCreate', async (message) => {
     // Check if the message content is "!delete-bot" and the author is the server owner
