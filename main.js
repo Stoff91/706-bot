@@ -2,6 +2,7 @@ require('dotenv').config();
 // Import the discord.js library
 const { Client, IntentsBitField, Partials, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { translate } = require('@vitalets/google-translate-api');
+const fetch = require('node-fetch'); // Install with: npm install node-fetch
 
 
 const client = new Client({
@@ -19,6 +20,20 @@ let unsetServer; // Declare variables outside
 let unsetAlliance;
 const CHANNEL_ID = '1323289983246925885'; // Replace with your channel ID
 const QUIZ_TIMEOUT = 600; // Timeout in seconds 
+
+
+async function translateMessage(messageContent) {
+    const response = await fetch(`${TRANSLATION_API_URL}${encodeURIComponent(messageContent)}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) {
+        throw new Error(`Translation request failed with status ${response.status}`);
+    }
+
+    return response.json();
+}
 
 const quizData = {
     name: "New Years Quiz 2024",
@@ -614,7 +629,36 @@ client.on('messageCreate', async message => {
         await message.reply({ embeds: [embed], components: [row] });
     }
     //TRANSLATE SECTION
-    if (message.author.bot || message.channel.id !== '1325950212086300804') return;
+    if (message.author.bot || message.channel.id !== '1326990553795006537') return;
+
+    try {
+        console.log('Attempting translation for:', message.content);
+
+        // Use the API to translate the message
+        const translationResponse = await translateMessage(message.content);
+        const translatedText = translationResponse.translatedText;
+        const sourceLanguage = translationResponse.sourceLanguage;
+
+        console.log('Detected source language:', sourceLanguage);
+        console.log('Translated text:', translatedText);
+
+        if (sourceLanguage !== 'en') {
+            // If the source language is not English, translate to English
+            await message.reply(`Translated to English: ${translatedText}`);
+        } else {
+            // If the source language is English, translate to French
+            const frenchResponse = await translateMessage(translatedText);
+            const frenchText = frenchResponse.translatedText;
+
+            console.log('Translated to French:', frenchText);
+            await message.reply(`Translated to French: ${frenchText}`);
+        }
+    } catch (error) {
+        console.error('Translation error:', error);
+        await message.react('😢'); // Add a crying reaction if translation fails
+    }
+
+    /*
 
     try {
         const response = await translate(message.content, {
@@ -650,7 +694,11 @@ client.on('messageCreate', async message => {
             console.error('Too many requests - consider retrying with a proxy.');
         }
         await message.react('😢'); // Add a crying reaction if translation fails
-    }
+    } */
+
+
+
+
 });
 
 client.on('messageCreate', async (message) => {
