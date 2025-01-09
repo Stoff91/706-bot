@@ -632,7 +632,7 @@ client.on('messageCreate', async message => {
     }
     //TRANSLATE SECTION
     if (message.author.bot || message.channel.id !== '1325950212086300804') return;
-
+/*
     try {
         const response = await translate(message.content, {
             to: 'en',
@@ -663,7 +663,7 @@ client.on('messageCreate', async message => {
         console.error('Translation error:', error);
           if (error.name === 'TooManyRequestsError') {
               console.error('Too many requests - consider retrying with a proxy.');
-          }
+          } */
           try {
           console.log('Attempting proxy-translation for:', message.content);
 
@@ -686,7 +686,7 @@ client.on('messageCreate', async message => {
           console.error('Translation error:', error);
           await message.react('😢'); // Add a crying reaction if translation fails
       }
-    } 
+   // } 
 
 });
 
