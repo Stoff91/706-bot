@@ -638,8 +638,6 @@ client.on('messageCreate', async message => {
             fetchOptions: { agent: null }, // Adjust or configure as necessary
         });
 
-        console.log('Translation response:', JSON.stringify(response, null, 2)); // Log the entire response object
-
         // Determine the source language
         const srcLanguage = response.raw?.ld_result?.srclangs?.[0] || response.raw?.ld_result?.extended_srclangs?.[0] || 'unknown';
 
