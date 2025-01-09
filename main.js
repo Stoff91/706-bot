@@ -1,7 +1,7 @@
 require('dotenv').config();
 // Import the discord.js library
 const { Client, IntentsBitField, Partials, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const translate = require('@vitalets/google-translate-api'); // Updated library
+const { translate } = require('@vitalets/google-translate-api');
 
 
 const client = new Client({
