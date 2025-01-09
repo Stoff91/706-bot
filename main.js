@@ -2,7 +2,6 @@ require('dotenv').config();
 // Import the discord.js library
 const { Client, IntentsBitField, Partials, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { translate } = require('@vitalets/google-translate-api');
-const { fetch } = require('node-fetch'); // Install with: npm install node-fetch
 
 
 const client = new Client({
@@ -24,7 +23,8 @@ const QUIZ_TIMEOUT = 600; // Timeout in seconds
 
 
 async function translateMessage(messageContent) {
-    const response = await fetch(`${TRANSLATION_API_URL}${encodeURIComponent(messageContent)}`, {
+    const url = `${TRANSLATION_API_URL}${encodeURIComponent(messageContent)}`;
+    const response = await fetch(url, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
     });
