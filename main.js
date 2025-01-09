@@ -617,30 +617,27 @@ client.on('messageCreate', async message => {
     if (message.author.bot || message.channel.id !== '1325950212086300804') return;
 
     try {
-        const detection = await translate(message.content, { to: 'en' });
-        const detectedLanguage = detection.src; // Extract the detected source language
+        const { text, src } = await translate(message.content, {
+            to: 'en',
+            fetchOptions: { agent: null }, // Adjust or configure as necessary
+        });
 
-        // Extract translation text safely
-        const getTranslatedText = (response) => {
-            if (response.sentences && Array.isArray(response.sentences)) {
-                return response.sentences.map(sentence => sentence.trans).join(' ');
-            }
-            return 'Translation unavailable';
-        };
-
-        // If the message is not in English, translate it to English
-        if (detectedLanguage !== 'en') {
-            const translatedText = getTranslatedText(detection);
-            await message.reply(`Translated to English: ${translatedText}`);
-        } 
-        // If the message is in English, translate it to French
-        else {
-            const result = await translate(message.content, { to: 'fr' });
-            const translatedText = getTranslatedText(result);
-            await message.reply(`Translated to French: ${translatedText}`);
+        // If the detected language is not English, reply with translation to English
+        if (src !== 'en') {
+            await message.reply(`Translated to English: ${text}`);
+        } else {
+            // If the message is already in English, translate to French
+            const { text: frenchText } = await translate(message.content, {
+                to: 'fr',
+                fetchOptions: { agent: null },
+            });
+            await message.reply(`Translated to French: ${frenchText}`);
         }
     } catch (error) {
         console.error('Translation error:', error);
+        if (error.name === 'TooManyRequestsError') {
+            console.error('Too many requests - consider retrying with a proxy.');
+        }
         await message.react('😢'); // Add a crying reaction if translation fails
     }
 });
