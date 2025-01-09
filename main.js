@@ -2,7 +2,7 @@ require('dotenv').config();
 // Import the discord.js library
 const { Client, IntentsBitField, Partials, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { translate } = require('@vitalets/google-translate-api');
-const fetch = require('node-fetch'); // Install with: npm install node-fetch
+const { fetch } = require('node-fetch'); // Install with: npm install node-fetch
 
 
 const client = new Client({
