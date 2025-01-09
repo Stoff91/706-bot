@@ -622,19 +622,18 @@ client.on('messageCreate', async message => {
             fetchOptions: { agent: null }, // Adjust or configure as necessary
         });
 
-        // Ensure only non-English messages are translated to English
-        if (src && src !== 'en') {
+        console.log('Detected source language:', src); // Log the detected source language
+
+        // If the detected language is not English, reply with translation to English
+        if (src !== 'en') {
             await message.reply(`Translated to English: ${text}`);
-        } else if (src === 'en') {
+        } else {
             // If the message is already in English, translate to French
             const { text: frenchText } = await translate(message.content, {
                 to: 'fr',
                 fetchOptions: { agent: null },
             });
             await message.reply(`Translated to French: ${frenchText}`);
-        } else {
-            // Fallback in case language detection fails
-            await message.reply('Could not detect language for translation.');
         }
     } catch (error) {
         console.error('Translation error:', error);
