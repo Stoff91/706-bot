@@ -616,23 +616,35 @@ client.on('messageCreate', async message => {
     //TRANSLATE SECTION
     if (message.author.bot || message.channel.id !== '1325950212086300804') return;
 
-    try {
-        const { text, src } = await translate(message.content, {
+        try {
+        console.log('Attempting translation for:', message.content); // Log the input content
+
+        const response = await translate(message.content, {
             to: 'en',
             fetchOptions: { agent: null }, // Adjust or configure as necessary
         });
 
-        console.log('Translation response:', response); // Log the entire response object
+        console.log('Translation response:', JSON.stringify(response, null, 2)); // Log the entire response object
+
+        const { text, src } = response;
+
+        // Debug the extracted fields
+        console.log(`Detected language: ${src}`);
+        console.log(`Translated text: ${text}`);
 
         // If the detected language is not English, reply with translation to English
         if (src !== 'en') {
             await message.reply(`Translated to English: ${text}`);
         } else {
             // If the message is already in English, translate to French
-            const { text: frenchText } = await translate(message.content, {
+            const frenchResponse = await translate(message.content, {
                 to: 'fr',
                 fetchOptions: { agent: null },
             });
+
+            console.log('French translation response:', JSON.stringify(frenchResponse, null, 2));
+
+            const { text: frenchText } = frenchResponse;
             await message.reply(`Translated to French: ${frenchText}`);
         }
     } catch (error) {
