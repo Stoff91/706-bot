@@ -633,31 +633,6 @@ client.on('messageCreate', async message => {
     if (message.author.bot || message.channel.id !== '1326990553795006537') return;
 
     try {
-        console.log('Attempting translation for:', message.content);
-
-        // Use the API to translate the message
-        const translationResponse = await translateMessage(message.content);
-        const translatedText = translationResponse.translatedText;
-        const sourceLanguage = translationResponse.sourceLanguage;
-
-        console.log('Detected source language:', sourceLanguage);
-        console.log('Translated text:', translatedText);
-
-        if (sourceLanguage !== 'en') {
-            // If the source language is not English, translate to English
-            await message.reply(`Translated to English: ${translatedText}`);
-        } else {
-             // If the source language is not English, translate to English
-            await message.reply(`Translated to French: ${translatedText}`);
-        }
-    } catch (error) {
-        console.error('Translation error:', error);
-        await message.react('😢'); // Add a crying reaction if translation fails
-    }
-
-    /*
-
-    try {
         const response = await translate(message.content, {
             to: 'en',
             fetchOptions: { agent: null }, // Adjust or configure as necessary
@@ -687,14 +662,32 @@ client.on('messageCreate', async message => {
         }
     } catch (error) {
         console.error('Translation error:', error);
-        if (error.name === 'TooManyRequestsError') {
-            console.error('Too many requests - consider retrying with a proxy.');
-        }
-        await message.react('😢'); // Add a crying reaction if translation fails
-    } */
+          if (error.name === 'TooManyRequestsError') {
+              console.error('Too many requests - consider retrying with a proxy.');
+          }
+          try {
+          console.log('Attempting proxy-translation for:', message.content);
 
+          // Use the API to translate the message
+          const translationResponse = await translateMessage(message.content);
+          const translatedText = translationResponse.translatedText;
+          const sourceLanguage = translationResponse.sourceLanguage;
 
+          console.log('Detected source language:', sourceLanguage);
+          console.log('Translated text:', translatedText);
 
+          if (sourceLanguage !== 'en') {
+              // If the source language is not English, translate to English
+              await message.reply(`Translated to English: ${translatedText}`);
+          } else {
+               // If the source language is not English, translate to English
+              await message.reply(`Translated to French: ${translatedText}`);
+          }
+      } catch (error) {
+          console.error('Translation error:', error);
+          await message.react('😢'); // Add a crying reaction if translation fails
+      }
+    } 
 
 });
 
