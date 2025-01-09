@@ -673,7 +673,7 @@ client.on('messageCreate', async message => {
           const translatedText = translationResponse.translatedText;
           const sourceLanguage = translationResponse.sourceLanguage;
 
-          console.log('Detected source language:', sourceLanguage);
+          console.log('Detected PROXY source language:', sourceLanguage);
           console.log('Translated text:', translatedText);
 
           if (sourceLanguage !== 'en') {
