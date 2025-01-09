@@ -1,6 +1,8 @@
 require('dotenv').config();
 // Import the discord.js library
 const { Client, IntentsBitField, Partials, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const translate = require('google-translate-api'); // Install with: npm install google-translate-api
+
 
 const client = new Client({
   intents: [
@@ -490,6 +492,7 @@ client.on('guildMemberAdd', async member => {
 });
 
 client.on('messageCreate', async message => {
+
   if (message.channel.type === 1 && message.content.trim().toLowerCase() === '!onboard') {
     const guild = client.guilds.cache.get('1310170318735802398');
     if (!guild) {
@@ -608,6 +611,26 @@ client.on('messageCreate', async message => {
         const row = new ActionRowBuilder().addComponents(rockButton, paperButton, scissorsButton);
 
         await message.reply({ embeds: [embed], components: [row] });
+    }
+    //TRANSLATE SECTION
+    if (message.author.bot || message.channel.id !== '1325950212086300804') return;
+
+    try {
+        const detection = await translate(message.content, { to: 'en' });
+        const detectedLanguage = detection.from.language.iso;
+
+        // If the message is not in English, translate it to English
+        if (detectedLanguage !== 'en') {
+            const result = await translate(message.content, { to: 'en' });
+            await message.reply(`Translated to English: ${result.text}`);
+        } 
+        // If the message is in English, translate it to French
+        else {
+            const result = await translate(message.content, { to: 'fr' });
+            await message.reply(`Translated to French: ${result.text}`);
+        }
+    } catch (error) {
+        console.error('Translation error:', error);
     }
 });
 

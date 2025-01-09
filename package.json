@@ -13,6 +13,6 @@
     "discord-player": "^6.7.1",
     "discord.js": "^14.16.3",
     "dotenv": "^16.4.5",
-    "play-dl": "^1.6.4"
+    "google-translate-api": "^2.3.0"
   }
 }
