@@ -622,7 +622,7 @@ client.on('messageCreate', async message => {
             fetchOptions: { agent: null }, // Adjust or configure as necessary
         });
 
-        console.log('Detected source language:', src); // Log the detected source language
+        console.log('Translation response:', response); // Log the entire response object
 
         // If the detected language is not English, reply with translation to English
         if (src !== 'en') {
