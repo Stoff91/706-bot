@@ -19,6 +19,7 @@ const client = new Client({
 let unsetServer; // Declare variables outside
 let unsetAlliance;
 const CHANNEL_ID = '1323289983246925885'; // Replace with your channel ID
+const TRANSLATION_API_URL = 'https://www.lkpgmuaythai.se/translation/';
 const QUIZ_TIMEOUT = 600; // Timeout in seconds 
 
 
