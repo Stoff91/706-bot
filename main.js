@@ -616,10 +616,6 @@ client.on('messageCreate', async message => {
     //TRANSLATE SECTION
     if (message.author.bot || message.channel.id !== '1325950212086300804') return;
 
-    client.on('messageCreate', async (message) => {
-    // Ignore bot messages and messages outside the specified channel
-    if (message.author.bot || message.channel.id !== CHANNEL_TRANSLATE_ID) return;
-
     try {
         const detection = await translate(message.content, { to: 'en' });
         const detectedLanguage = detection.src; // Extract the detected source language
