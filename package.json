@@ -13,6 +13,7 @@
     "@vitalets/google-translate-api": "^9.2.0",
     "discord-player": "^6.7.1",
     "discord.js": "^14.16.3",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "node-fetch": "^3.3.2"
   }
 }
