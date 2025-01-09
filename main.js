@@ -620,15 +620,23 @@ client.on('messageCreate', async message => {
         const detection = await translate(message.content, { to: 'en' });
         const detectedLanguage = detection.src; // Extract the detected source language
 
+        // Extract translation text safely
+        const getTranslatedText = (response) => {
+            if (response.sentences && Array.isArray(response.sentences)) {
+                return response.sentences.map(sentence => sentence.trans).join(' ');
+            }
+            return 'Translation unavailable';
+        };
+
         // If the message is not in English, translate it to English
         if (detectedLanguage !== 'en') {
-            const translatedText = detection.sentences.map(sentence => sentence.trans).join(' ');
+            const translatedText = getTranslatedText(detection);
             await message.reply(`Translated to English: ${translatedText}`);
         } 
         // If the message is in English, translate it to French
         else {
             const result = await translate(message.content, { to: 'fr' });
-            const translatedText = result.sentences.map(sentence => sentence.trans).join(' ');
+            const translatedText = getTranslatedText(result);
             await message.reply(`Translated to French: ${translatedText}`);
         }
     } catch (error) {
