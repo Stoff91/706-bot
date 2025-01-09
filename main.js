@@ -23,7 +23,8 @@ const QUIZ_TIMEOUT = 600; // Timeout in seconds
 
 
 async function translateMessage(messageContent) {
-    const url = `${TRANSLATION_API_URL}${encodeURIComponent(messageContent)}`;
+    const sanitizedContent = messageContent.replace(/\//g, ' ');
+    const url = `${TRANSLATION_API_URL}${encodeURIComponent(sanitizedContent)}`;
     const response = await fetch(url, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
