@@ -38,7 +38,7 @@ async function translateMessage(messageContent) {
 }
 
 const quizData = {
-    name: "New Years Quiz 2024",
+    name: "Last War Quiz 2025",
     questions: [
         {
             question: "CEST is an abbreviation that a lot of people use daily during summertime. One person in particular hates the use of this, and strikes people down when they say IN CEST. Whom?",
