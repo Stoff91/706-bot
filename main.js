@@ -1283,7 +1283,7 @@ Dealer's hand: ${dealerHandDisplay} (Value: ${dealerHandValue})
 
 
 client.on('messageCreate', async (message) => {
-    if (message.channel.id === '1310234127529803816' && message.content === '!trigger-quiz') {
+    if (message.channel.id === '1327286881318211695' && message.content === '!trigger-quiz') {
         // Ensure only the server owner can trigger the command
         if (message.author.id !== message.guild.ownerId) {
             return message.reply('Only the server owner can trigger this command.');
@@ -1293,7 +1293,7 @@ client.on('messageCreate', async (message) => {
         const members = await guild.members.fetch(); // Fetch all guild members
 
         // Role IDs to filter members
-        const allowedRoleIds = ['1320346205171089519', '1320346247055282186'];
+        const allowedRoleIds = ['1310173692072038431', '1310174894163492976'];
 
         // Create an embed for the quiz message
         const eventStart = Math.floor(new Date('2025-01-10T15:00:00Z').getTime() / 1000);
@@ -1306,7 +1306,7 @@ client.on('messageCreate', async (message) => {
 
 This is 706-bot, here to provide instructions for the upcoming quiz event.`)
             .addFields(
-                { name: 'Instructions', value: '1. Start the quiz by sending `!quiz` to me here in direct messages.\n2. If the quiz crashes, you can restart it by sending `!quiz` again. Please note that your original start time will be used for scoring.' },
+                { name: 'Instructions', value: '1. Start the quiz by sending `!quiz` to this bot in direct messages.\n2. If the quiz crashes, you can restart it by sending `!quiz` again. Please note that your original start time will be used for scoring.' },
                 { name: 'Rules', value: '- Complete the quiz as quickly as possible. It is a timed event.\n- There are approximately 20 questions. Each question will have multiple-choice options. Simply select the correct button for your answer.\n- Scoring:\n  - Earn 1 point for each correct answer.\n  - Earn 1 additional point for every minute under 10 minutes you complete the quiz. For example, finishing in under 1 minute grants a maximum of 10 points for time.\n  - After 10 minutes, no bonus points will be awarded for time, but time will be used as a tiebreaker.' },
                 { name: 'Event Timing', value: `The quiz will be open from <t:${eventStart}:F> (your local time) until <t:${eventEnd}:F> (your local time).` }
             )
@@ -1328,15 +1328,15 @@ This is 706-bot, here to provide instructions for the upcoming quiz event.`)
         }
 
         // Send the embed message in the channel as well
-        const targetChannel = message.guild.channels.cache.get('1310234127529803816');
+        const targetChannel = message.guild.channels.cache.get('1327286881318211695');
         if (targetChannel) {
             targetChannel.send({ embeds: [quizEmbed] });
-            targetChannel.send('@everyone Please check the instructions above for the quiz event!');
+            targetChannel.send('@everyone Please check the instructions above for the quiz event! Do note that this is the first time we use the quiz mechanic, any potential failure will be blamed on someone else.');
         }
 
         // Wait for all messages to be sent
         setTimeout(() => {
-            const replyChannel = message.guild.channels.cache.get('1310234127529803816');
+            const replyChannel = message.guild.channels.cache.get('1327286881318211695');
             if (replyChannel) {
                 replyChannel.send(
                     `The quiz instructions have been sent to the following members:\n${recipients.join('\n') || 'No eligible members were found.'}`
