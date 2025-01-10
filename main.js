@@ -1295,56 +1295,44 @@ client.on('messageCreate', async (message) => {
         // Role IDs to filter members
         const allowedRoleIds = ['1320346205171089519', '1320346247055282186'];
 
-        // Message to send
-        const quizMessage = `Hello!
+        // Create an embed for the quiz message
+        const eventStart = Math.floor(new Date('2025-01-10T19:00:00Z').getTime() / 1000);
+        const eventEnd = Math.floor(new Date('2025-01-11T21:00:00Z').getTime() / 1000);
 
-This is 706-bot, here to provide instructions for the upcoming quiz event.
+        const quizEmbed = new MessageEmbed()
+            .setColor('#0099ff')
+            .setTitle('Quiz Event Instructions')
+            .setDescription(`Hello!
 
-**Instructions:**
-1. Start the quiz by sending \`!quiz\` to me here in direct messages.
-2. If the quiz crashes, you can restart it by sending \`!quiz\` again. Please note that your original start time will be used for scoring.
-
-**Rules:**
-- Complete the quiz as quickly as possible. It is a timed event.
-- There are approximately 20 questions. Each question will have multiple-choice options. Simply select the correct button for your answer.
-- Scoring:
-  - Earn 1 point for each correct answer.
-  - Earn 1 additional point for every minute under 10 minutes you complete the quiz. For example, finishing in under 1 minute grants a maximum of 10 points for time.
-  - After 10 minutes, no bonus points will be awarded for time, but time will be used as a tiebreaker.
-
-**Event Timing:**
-The quiz will be open from <t:1234567890:F> (your local time) until <t:1234567890:F> (your local time).
-
-Good luck!`;
-
-        // Replace <t:1234567890:F> with actual Discord timestamps for event start and end
-        const eventStart = Math.floor(new Date('2025-01-10T20:00:00Z').getTime() / 1000);
-        const eventEnd = Math.floor(new Date('2025-01-11T22:00:00Z').getTime() / 1000);
-        const formattedMessage = quizMessage
-            .replace('<t:1234567890:F>', `<t:${eventStart}:F>`)
-            .replace('<t:1234567890:F>', `<t:${eventEnd}:F>`);
+This is 706-bot, here to provide instructions for the upcoming quiz event.`)
+            .addFields(
+                { name: 'Instructions', value: '1. Start the quiz by sending `!quiz` to me here in direct messages.\n2. If the quiz crashes, you can restart it by sending `!quiz` again. Please note that your original start time will be used for scoring.' },
+                { name: 'Rules', value: '- Complete the quiz as quickly as possible. It is a timed event.\n- There are approximately 20 questions. Each question will have multiple-choice options. Simply select the correct button for your answer.\n- Scoring:\n  - Earn 1 point for each correct answer.\n  - Earn 1 additional point for every minute under 10 minutes you complete the quiz. For example, finishing in under 1 minute grants a maximum of 10 points for time.\n  - After 10 minutes, no bonus points will be awarded for time, but time will be used as a tiebreaker.' },
+                { name: 'Event Timing', value: `The quiz will be open from <t:${eventStart}:F> (your local time) until <t:${eventEnd}:F> (your local time).` }
+            )
+            .setFooter('Good luck!');
 
         // Collect members who received the message
         const recipients = [];
 
-        // Send the message to all members with specific roles
-        members.forEach(async (member) => {
+        // Send the embed message to all members with specific roles
+        for (const member of members.values()) {
             if (!member.user.bot && allowedRoleIds.some(roleId => member.roles.cache.has(roleId))) {
                 try {
-                    await member.send(formattedMessage);
-                    recipients.push(member.user.tag);
+                    await member.send({ embeds: [quizEmbed] });
+                    recipients.push(`<@${member.id}>`); // Tag the user for the reply
                 } catch (error) {
                     console.error(`Could not send DM to ${member.user.tag}:`, error);
                 }
             }
-        });
+        }
 
         // Wait for all messages to be sent
         setTimeout(() => {
             const replyChannel = message.guild.channels.cache.get('1310234127529803816');
             if (replyChannel) {
                 replyChannel.send(
-                    `The quiz instructions have been sent to the following members:\n${recipients.join(', ') || 'No eligible members were found.'}`
+                    `The quiz instructions have been sent to the following members:\n${recipients.join('\n') || 'No eligible members were found.'}`
                 );
             }
         }, 5000); // Delay to ensure all messages are processed
