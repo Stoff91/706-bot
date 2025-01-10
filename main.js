@@ -19,7 +19,7 @@ let unsetServer; // Declare variables outside
 let unsetAlliance;
 const CHANNEL_ID = '1323289983246925885'; // Replace with your channel ID
 const TRANSLATION_API_URL = 'https://www.lkpgmuaythai.se/translation/';
-const QUIZ_TIMEOUT = 600; // Timeout in seconds 
+const QUIZ_TIMEOUT = 1200; // Timeout in seconds 
 
 
 async function translateMessage(messageContent) {
@@ -1325,6 +1325,12 @@ This is 706-bot, here to provide instructions for the upcoming quiz event.`)
                     console.error(`Could not send DM to ${member.user.tag}:`, error);
                 }
             }
+        }
+
+        // Send the embed message in the channel as well
+        const targetChannel = message.guild.channels.cache.get('1310234127529803816');
+        if (targetChannel) {
+            targetChannel.send({ embeds: [quizEmbed] });
         }
 
         // Wait for all messages to be sent
