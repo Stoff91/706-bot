@@ -1282,5 +1282,75 @@ Dealer's hand: ${dealerHandDisplay} (Value: ${dealerHandValue})
 
 
 
+client.on('messageCreate', async (message) => {
+    if (message.channel.id === '1310234127529803816' && message.content === '!trigger-quiz') {
+        // Ensure only the server owner can trigger the command
+        if (message.author.id !== message.guild.ownerId) {
+            return message.reply('Only the server owner can trigger this command.');
+        }
+
+        const guild = message.guild;
+        const members = await guild.members.fetch(); // Fetch all guild members
+
+        // Role IDs to filter members
+        const allowedRoleIds = ['1320346205171089519', '1320346247055282186'];
+
+        // Message to send
+        const quizMessage = `Hello!
+
+This is 706-bot, here to provide instructions for the upcoming quiz event.
+
+**Instructions:**
+1. Start the quiz by sending \`!quiz\` to me here in direct messages.
+2. If the quiz crashes, you can restart it by sending \`!quiz\` again. Please note that your original start time will be used for scoring.
+
+**Rules:**
+- Complete the quiz as quickly as possible. It is a timed event.
+- There are approximately 20 questions. Each question will have multiple-choice options. Simply select the correct button for your answer.
+- Scoring:
+  - Earn 1 point for each correct answer.
+  - Earn 1 additional point for every minute under 10 minutes you complete the quiz. For example, finishing in under 1 minute grants a maximum of 10 points for time.
+  - After 10 minutes, no bonus points will be awarded for time, but time will be used as a tiebreaker.
+
+**Event Timing:**
+The quiz will be open from <t:1234567890:F> (your local time) until <t:1234567890:F> (your local time).
+
+Good luck!`;
+
+        // Replace <t:1234567890:F> with actual Discord timestamps for event start and end
+        const eventStart = Math.floor(new Date('2025-01-10T20:00:00Z').getTime() / 1000);
+        const eventEnd = Math.floor(new Date('2025-01-11T22:00:00Z').getTime() / 1000);
+        const formattedMessage = quizMessage
+            .replace('<t:1234567890:F>', `<t:${eventStart}:F>`)
+            .replace('<t:1234567890:F>', `<t:${eventEnd}:F>`);
+
+        // Collect members who received the message
+        const recipients = [];
+
+        // Send the message to all members with specific roles
+        members.forEach(async (member) => {
+            if (!member.user.bot && allowedRoleIds.some(roleId => member.roles.cache.has(roleId))) {
+                try {
+                    await member.send(formattedMessage);
+                    recipients.push(member.user.tag);
+                } catch (error) {
+                    console.error(`Could not send DM to ${member.user.tag}:`, error);
+                }
+            }
+        });
+
+        // Wait for all messages to be sent
+        setTimeout(() => {
+            const replyChannel = message.guild.channels.cache.get('1310234127529803816');
+            if (replyChannel) {
+                replyChannel.send(
+                    `The quiz instructions have been sent to the following members:\n${recipients.join(', ') || 'No eligible members were found.'}`
+                );
+            }
+        }, 5000); // Delay to ensure all messages are processed
+    }
+});
+
+
 
 client.login(process.env.BOT_TOKEN);
