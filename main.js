@@ -1296,11 +1296,11 @@ client.on('messageCreate', async (message) => {
         const allowedRoleIds = ['1320346205171089519', '1320346247055282186'];
 
         // Create an embed for the quiz message
-        const eventStart = Math.floor(new Date('2025-01-10T19:00:00Z').getTime() / 1000);
+        const eventStart = Math.floor(new Date('2025-01-10T15:00:00Z').getTime() / 1000);
         const eventEnd = Math.floor(new Date('2025-01-11T21:00:00Z').getTime() / 1000);
 
         const quizEmbed = new EmbedBuilder()
-            .setColor('#0099ff')
+            .setColor('#00FFAA')
             .setTitle('Quiz Event Instructions')
             .setDescription(`Hello!
 
@@ -1331,6 +1331,7 @@ This is 706-bot, here to provide instructions for the upcoming quiz event.`)
         const targetChannel = message.guild.channels.cache.get('1310234127529803816');
         if (targetChannel) {
             targetChannel.send({ embeds: [quizEmbed] });
+            targetChannel.send('@everyone Please check the instructions above for the quiz event!');
         }
 
         // Wait for all messages to be sent
