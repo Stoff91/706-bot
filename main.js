@@ -1299,7 +1299,7 @@ client.on('messageCreate', async (message) => {
         const eventStart = Math.floor(new Date('2025-01-10T19:00:00Z').getTime() / 1000);
         const eventEnd = Math.floor(new Date('2025-01-11T21:00:00Z').getTime() / 1000);
 
-        const quizEmbed = new MessageEmbed()
+        const quizEmbed = new EmbedBuilder()
             .setColor('#0099ff')
             .setTitle('Quiz Event Instructions')
             .setDescription(`Hello!
@@ -1310,7 +1310,7 @@ This is 706-bot, here to provide instructions for the upcoming quiz event.`)
                 { name: 'Rules', value: '- Complete the quiz as quickly as possible. It is a timed event.\n- There are approximately 20 questions. Each question will have multiple-choice options. Simply select the correct button for your answer.\n- Scoring:\n  - Earn 1 point for each correct answer.\n  - Earn 1 additional point for every minute under 10 minutes you complete the quiz. For example, finishing in under 1 minute grants a maximum of 10 points for time.\n  - After 10 minutes, no bonus points will be awarded for time, but time will be used as a tiebreaker.' },
                 { name: 'Event Timing', value: `The quiz will be open from <t:${eventStart}:F> (your local time) until <t:${eventEnd}:F> (your local time).` }
             )
-            .setFooter('Good luck!');
+            .setFooter({ text: 'Good luck!' });
 
         // Collect members who received the message
         const recipients = [];
@@ -1338,7 +1338,6 @@ This is 706-bot, here to provide instructions for the upcoming quiz event.`)
         }, 5000); // Delay to ensure all messages are processed
     }
 });
-
 
 
 client.login(process.env.BOT_TOKEN);
