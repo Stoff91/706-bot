@@ -1397,6 +1397,45 @@ client.on('messageCreate', async (message) => {
             .setFooter({ text: 'Congratulations to all participants!' });
 
         message.channel.send({ embeds: [resultsEmbed] });
+
+        // Announce that Dread will contact winners
+        const announcementEmbed = new EmbedBuilder()
+            .setColor('#ff4500')
+            .setTitle('🏆 Attention All Participants! 🏆')
+            .setDescription(
+                "Dread will be reaching out to the winner(s) to arrange their trophies! \n\nPrepare to celebrate your victory in style 🎉"
+            )
+            .setFooter({ text: 'Stay tuned for more exciting events!' });
+
+        message.channel.send({ embeds: [announcementEmbed] });
+    }
+
+    if (message.content === '!quiz-questions') {
+        const questionEmbeds = quizData.questions.map((q, index) => {
+            const embed = new EmbedBuilder()
+                .setColor('#0099ff')
+                .setTitle(`Question ${index + 1}`)
+                .setDescription(q.question);
+
+            if (q.attachment) {
+                embed.setImage(q.attachment);
+            }
+
+            q.options.forEach(option => {
+                const isCorrect = option === q.correct;
+                embed.addFields({
+                    name: isCorrect ? `✅ ${option}` : `❌ ${option}`,
+                    value: isCorrect ? 'Correct Answer' : 'Incorrect Answer',
+                    inline: true
+                });
+            });
+
+            return embed;
+        });
+
+        for (const embed of questionEmbeds) {
+            await message.channel.send({ embeds: [embed] });
+        }
     }
 });
 
