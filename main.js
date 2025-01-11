@@ -1346,5 +1346,59 @@ This is 706-bot, here to provide instructions for the upcoming quiz event.`)
     }
 });
 
+client.on('messageCreate', async (message) => {
+    if (message.content === '!quiz-results') {
+        // Ensure only the server admin can trigger the command
+        if (message.author.id !== message.guild.ownerId) {
+            return message.reply('Only the server owner can trigger this command.');
+        }
+
+        const targetChannel = message.guild.channels.cache.get('1323289983246925885');
+        if (!targetChannel) {
+            return message.reply('Target channel not found.');
+        }
+
+        const messages = await targetChannel.messages.fetch({ limit: 100 }); // Fetch the last 100 messages
+
+        const results = [];
+
+        messages.forEach(msg => {
+            const match = msg.content.match(/@.*? \(.*?\) - end - .*? - Q.*?: .*? - Score: (\d+)\/.*? - Duration: (\d+) seconds/);
+            if (match) {
+                const tag = msg.content.split(' ')[0]; // Extract the tag
+                const score = parseInt(match[1], 10);
+                const duration = parseInt(match[2], 10);
+
+                // Calculate bonus points for time under 10 minutes (600 seconds)
+                const bonusPoints = Math.max(0, 10 - Math.floor(duration / 60));
+                const totalScore = score + bonusPoints;
+
+                results.push({ tag, score: totalScore, duration });
+            }
+        });
+
+        if (results.length === 0) {
+            return message.reply('No valid quiz results found.');
+        }
+
+        // Sort results by score (descending), then by duration (ascending)
+        results.sort((a, b) => b.score - a.score || a.duration - b.duration);
+
+        // Build the result table
+        const resultTable = results.map((result, index) => {
+            return `${index + 1}. ${result.tag} - Score: ${result.score} - Duration: ${result.duration} seconds`;
+        }).join('\n');
+
+        // Send the results back to the channel
+        const resultsEmbed = new EmbedBuilder()
+            .setColor('#00ff00')
+            .setTitle('Quiz Results')
+            .setDescription(resultTable)
+            .setFooter({ text: 'Congratulations to all participants!' });
+
+        message.channel.send({ embeds: [resultsEmbed] });
+    }
+});
+
 
 client.login(process.env.BOT_TOKEN);
