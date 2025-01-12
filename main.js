@@ -1358,7 +1358,7 @@ client.on('messageCreate', async (message) => {
             return message.reply('Target channel not found.');
         }
 
-        const messages = await targetChannel.messages.fetch({ limit: 100 }); // Fetch the last 100 messages
+        const messages = await targetChannel.messages.fetch({ limit: 5000 }); // Fetch the last 100 messages
 
         const results = [];
 
