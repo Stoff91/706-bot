@@ -1358,7 +1358,29 @@ client.on('messageCreate', async (message) => {
             return message.reply('Target channel not found.');
         }
 
-        const messages = await targetChannel.messages.fetch({ limit: 5000 }); // Fetch the last 100 messages
+        const fetchMessages = async (channel, limit = 5000) => {
+            let fetchedMessages = [];
+            let lastMessageId = null;
+
+            while (fetchedMessages.length < limit) {
+                const options = { limit: 100 };
+                if (lastMessageId) {
+                    options.before = lastMessageId;
+                }
+
+                const messages = await channel.messages.fetch(options);
+                if (messages.size === 0) {
+                    break;
+                }
+
+                fetchedMessages.push(...messages.values());
+                lastMessageId = messages.last().id;
+            }
+
+            return fetchedMessages.slice(0, limit);
+        };
+
+        const messages = await fetchMessages(targetChannel, 5000);
 
         const results = [];
 
