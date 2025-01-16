@@ -631,8 +631,7 @@ client.on('messageCreate', async message => {
         await message.reply({ embeds: [embed], components: [row] });
     }
     //TRANSLATE SECTION
-    if (message.author.bot || message.channel.id !== '1325950212086300804') return;
-
+    if (message.author.bot || (message.channel.id !== '1325950212086300804' && message.channel.id !== '1329349527538241568')) return;
     try {
         const response = await translate(message.content, {
             to: 'en',
