@@ -640,11 +640,11 @@ client.on('messageCreate', async message => {
 
 
     if (message.content == '') {
-      await message.react(':frame_photo:');
+      return;
     }; 
 
     if (message.startsWith == 'http') {
-      await message.react(':link:');
+      return;
     };
     try {
         const response = await translate(message.content, {
