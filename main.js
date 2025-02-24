@@ -637,6 +637,15 @@ client.on('messageCreate', async message => {
         message.channel.id !== '1310181765507452949' && 
         message.channel.id !== '1325950212086300804' && 
         message.channel.id !== '1310270677617610832')) return;
+
+
+    if (message.content == '') {
+      return
+    } else {
+      console.log('----');
+      console.log(message.content);
+      console.log('----');
+    }
     try {
         const response = await translate(message.content, {
             to: 'en',
