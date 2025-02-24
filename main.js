@@ -631,7 +631,12 @@ client.on('messageCreate', async message => {
         await message.reply({ embeds: [embed], components: [row] });
     }
     //TRANSLATE SECTION
-    if (message.author.bot || (message.channel.id !== '1325950212086300804' && message.channel.id !== '1329349527538241568')) return;
+    if (message.author.bot || (
+        message.channel.id !== '1311434153610182686' && 
+        message.channel.id !== '1310181714072440882' && 
+        message.channel.id !== '1310181765507452949' && 
+        message.channel.id !== '1325950212086300804' && 
+        message.channel.id !== '1310270677617610832')) return;
     try {
         const response = await translate(message.content, {
             to: 'en',
